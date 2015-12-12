@@ -119,6 +119,16 @@
   }
 
   /**
+   * Linearly interpolate value (expected to be between 0-1) in between from and to.
+   * @param from
+   * @param to
+   * @param value
+   */
+  static Lerp(from: number, to: number, value: number): number {
+    return from + (to - from) * value;
+  }
+
+  /**
    * Returns whether two rectangles are touching.
    * @param r1
    * @param r2

@@ -37,6 +37,7 @@
     <TypeScriptCompile Include="lib\Components\components.d.ts" />
     <TypeScriptCompile Include="lib\Components\FixedToCamera.ts" />
     <TypeScriptCompile Include="lib\Components\FollowWithCamera.ts" />
+    <TypeScriptCompile Include="lib\Components\TweenComponent.ts" />
     <TypeScriptCompile Include="lib\datastructures.d.ts" />
     <TypeScriptCompile Include="lib\DataStructures\Group.ts" />
     <TypeScriptCompile Include="lib\DataStructures\MagicArray.ts" />

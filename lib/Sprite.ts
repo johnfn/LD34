@@ -56,6 +56,11 @@ class Sprite {
    */
   public debug: DebugDraw;
 
+  /**
+   * Tween object. Useful for animations.
+   */
+  public tween: TweenComponent;
+
   private static sprites: { [key: string]: Group<Sprite> };
 
   public get textureUrl(): string {
@@ -253,12 +258,19 @@ class Sprite {
 
   private initComponents(g: PIXI.Graphics): void {
     this.components = this.components.map(c => Util.Clone(c));
+
+    // Add default sprite components
+    // TODO: Should probably just decorate Sprite
+
     this.components.push(new DebugDraw(this, g));
+    this.components.push(new TweenComponent())
 
     for (const c of this.components) {
       // Make easy-to-access references to common components.
+
       if (c instanceof PhysicsComponent) this.physics = c;
       if (c instanceof DebugDraw)        this.debug = c;
+      if (c instanceof TweenComponent)   this.tween = c;
 
       c.init(this);
     }

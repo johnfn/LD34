@@ -9,6 +9,9 @@ class G {
 }
 
 enum PlayerEvents {
+  /**
+   * args: previous health, new health
+   */
   TakeDamage
 }
 
@@ -60,7 +63,7 @@ class Player extends Sprite {
 
     Globals.camera.shakeScreen();
 
-    this.playerEvents.emit(PlayerEvents.TakeDamage);
+    this.playerEvents.emit(PlayerEvents.TakeDamage, this._health + amount, this._health);
   }
 
   private checkForDamage(): void {
@@ -171,9 +174,18 @@ class HUD extends Sprite {
 
     this.createHealthbar();
 
-    G.player.playerEvents.on(PlayerEvents.TakeDamage, () => {
-      console.log("Player took damage!!!whufas");
+    G.player.playerEvents.on(PlayerEvents.TakeDamage, (prevHealth: number, currentHealth: number) => {
+      this.tween.addTween("animate-healthbar", 60, (e: Tween) => {
+        this.animateHealthbar(e, prevHealth, currentHealth);
+      })
     });
+  }
+
+  animateHealthbar(e: Tween, prevHealth: number, currentHealth: number): void {
+    const prevWidth: number = (prevHealth / G.player.maxHealth) * this._barWidth;
+    const nextWidth: number = (currentHealth / G.player.maxHealth) * this._barWidth;
+
+    this._healthbarGreen.width = Util.Lerp(prevWidth, nextWidth, e.percentage);
   }
 
   createHealthbar(): void {
