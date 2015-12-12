@@ -32,7 +32,9 @@ class Player extends Sprite {
 
   // Flicker state
 
+  private MAX_FLICKER_DURATION: number = 90;
   private isFlickering: boolean = false;
+  private flickerTime: number   = 0;
 
   constructor() {
     super("assets/ship.png");
@@ -46,9 +48,7 @@ class Player extends Sprite {
   private takeDamage(amount: number): void {
     this._health -= amount;
 
-    this.isFlickering = true;
-
-    console.log(this.health);
+    this.startFlicker();
   }
 
   private checkForDamage(): void {
@@ -63,11 +63,42 @@ class Player extends Sprite {
     }
   }
 
+  private startFlicker(): void {
+    this.isFlickering = true;
+    this.flickerTime = this.MAX_FLICKER_DURATION;
+  }
+
+  private finishFlicker(): void {
+    this.isFlickering = false;
+    this.alpha = 1.0
+  }
+
+  private processFlicker(): void {
+    this.flickerTime--;
+
+    if (this.flickerTime < 0) {
+      this.finishFlicker();
+      return;
+    }
+
+    let transparent = false;
+
+    if (this.flickerTime > this.MAX_FLICKER_DURATION / 2) {
+      // first half
+      transparent = Math.floor(this.flickerTime / 5) % 2 == 0;
+    } else {
+      // second half (faster!)
+      transparent = Math.floor(this.flickerTime / 3) % 2 == 0;
+    }
+
+    this.alpha = transparent ? 0.5 : 1.0;
+  }
+
   update(): void {
     if (!this.isFlickering) {
       this.checkForDamage();
     } else {
-      
+      this.processFlicker();
     }
 
     if (Globals.keyboard.down.A) {
