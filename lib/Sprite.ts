@@ -179,6 +179,10 @@ class Sprite {
     return new PIXI.Rectangle(x, y, bounds.width, bounds.height);
   }
 
+  /**
+   * Gets all children of this Sprite.
+   * @returns {} 
+   */
   public get children() {
     return new MagicArray(this.displayObject.children)
       // The reason we filter by .contains here is because the children of displayObject

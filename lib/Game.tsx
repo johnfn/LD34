@@ -63,10 +63,7 @@ class Game {
    * The core update loop.
   */
   update(): void {
-    let children = this.fixedStage.children
-    children.push(this.fixedStage)
-
-    children.addAll(this.stage.children);
+    let children = Sprites.all().items();
 
     Globals.keyboard.update();
 

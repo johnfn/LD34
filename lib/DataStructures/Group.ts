@@ -25,7 +25,7 @@
     return this._dict.contains(member);
   }
 
-  all(): T[] {
+  items(): T[] {
     return this._dict.keys();
   }
 

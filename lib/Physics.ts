@@ -181,7 +181,7 @@ class PhysicsManager {
 
     if (!against) return new Maybe<RaycastResult>();
 
-    const againstList = against.all();
+    const againstList = against.items();
     let result: RaycastResult = undefined;
 
     // TODO: could update var in a later version of TS.

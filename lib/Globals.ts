@@ -55,7 +55,7 @@ class Sprites {
       return Sprites.list as Group<T>;
     }
 
-    const sprites  = Sprites.list.all();
+    const sprites  = Sprites.list.items();
     const result   = new Group<T>();
 
     for (const s of sprites) {

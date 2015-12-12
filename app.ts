@@ -74,11 +74,37 @@ class Player extends Sprite {
   }
 }
 
+enum BasicEnemyState {
+  MovingLeft,
+  MovingRight,
+}
+
+@component(new PhysicsComponent({
+  solid: true,
+  immovable: true
+}))
 class Enemy extends Sprite {
+  state: BasicEnemyState;
+
   constructor(texture: PIXI.Texture, x: number, y: number) {
     super(texture);
 
-    this.moveTo(50, 50);
+    this.state = BasicEnemyState.MovingLeft;
+    this.moveTo(x, y);
+
+    Globals.events.on(GlobalEvents.LoadingIsDone, () => {
+      this.physics.collidesWith = new Group(G.map.getLayer("Wall").children);
+    });
+  }
+
+  update(): void {
+    if (this.state == BasicEnemyState.MovingLeft) {
+      this.physics.moveBy(-5, 0);
+    }
+
+    if (this.state == BasicEnemyState.MovingRight) {
+      this.physics.moveBy(-5, 0);
+    }
   }
 }
 
