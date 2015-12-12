@@ -160,7 +160,7 @@ class Sprite {
     return result;
   }
 
-  get globalXY(): [number, number] {
+  get globalXY(): Point {
     let x = this.displayObject.x;
     let y = this.displayObject.y;
 
@@ -173,19 +173,15 @@ class Sprite {
       parent = parent.parent;
     }
 
-    return [x, y];
+    return new Point(x, y);
   }
 
   get globalX(): number {
-    const [x, y] = this.globalXY
-
-    return x
+    return this.globalXY.x
   }
 
   get globalY(): number {
-    const [x, y] = this.globalXY
-
-    return y
+    return this.globalXY.y
   }
 
   /**
@@ -193,10 +189,10 @@ class Sprite {
    * @returns {} 
    */
   get globalBounds(): PIXI.Rectangle {
-    const [x, y] = this.globalXY
+    const globalxy = this.globalXY
     const bounds = this.bounds
 
-    return new PIXI.Rectangle(x, y, bounds.width, bounds.height);
+    return new PIXI.Rectangle(globalxy.x, globalxy.y, bounds.width, bounds.height);
   }
 
   /**

@@ -20,6 +20,16 @@ class Ray {
     this.y1 = y1;
   }
 
+  public add(x: number, y: number): this {
+    this.x0 += x;
+    this.x1 += x;
+
+    this.y0 += y;
+    this.y1 += y;
+
+    return this;
+  }
+
   public static FromPoints(start: Point, end: Point): Ray {
     return new Ray(start.x, start.y, end.x, end.y);
   }
@@ -44,7 +54,9 @@ class PhysicsManager {
   private moveSpriteX(sprite: Sprite, dx: number): ResolveVelocityResult {
     const SW = PhysicsManager.SKIN_WIDTH;
 
-    const spriteSideX = sprite.x + (dx > 0 ? sprite.width: 0);
+    const spritePos   = sprite.globalXY;
+
+    const spriteSideX = spritePos.x + (dx > 0 ? sprite.width: 0);
     const rayStartX   = spriteSideX + (dx > 0 ? -SW : SW);
     const rayEndX     = rayStartX + (dx > 0 ? SW : -SW) + dx;
     const raySpacing  = (sprite.height - SW * 2)/ (PhysicsManager.NUM_RAYS - 1)
@@ -57,7 +69,7 @@ class PhysicsManager {
     let closestCollisionDistance: number = Number.POSITIVE_INFINITY;
 
     for (let i = 0; i < PhysicsManager.NUM_RAYS; i++) {
-      let y = sprite.y + SW + raySpacing * i;
+      let y = spritePos.y + SW + raySpacing * i;
       const ray = new Ray(rayStartX, y, rayEndX, y);
 
       this.raycast(ray, sprite.physics.collidesWith).then(hit => {
@@ -65,9 +77,11 @@ class PhysicsManager {
 
         if (!result.collision || dist < closestCollisionDistance) {
           closestCollisionDistance = dist;
+          const blergh = hit.position.x - (dx > 0 ? sprite.width : 0) - spritePos.x + sprite.x;
+
           result = {
             collision: true,
-            newPosition: hit.position.x - (dx > 0 ? sprite.width : 0),
+            newPosition: blergh,
             collidedWith: new MagicArray(hit.sprite)
           };
         }
@@ -80,9 +94,11 @@ class PhysicsManager {
   private moveSpriteY(sprite: Sprite, dy: number): ResolveVelocityResult {
     const SW = PhysicsManager.SKIN_WIDTH;
 
-    const spriteSideY = sprite.y + (dy > 0 ? sprite.height : 0);
+    const spritePos   = sprite.globalXY;
+
+    const spriteSideY = spritePos.y + (dy > 0 ? sprite.height : 0);
     const rayStartY   = spriteSideY + (dy > 0 ? -SW : SW);
-    const rayEndY     = rayStartY + SW + dy;
+    const rayEndY     = rayStartY + (dy > 0 ? SW : -SW) + dy;
     const raySpacing  = (sprite.width - SW * 2) / (PhysicsManager.NUM_RAYS - 1)
 
     let result: ResolveVelocityResult = {
@@ -93,17 +109,19 @@ class PhysicsManager {
     let closestCollisionDistance = Number.POSITIVE_INFINITY;
 
     for (let i = 0; i < PhysicsManager.NUM_RAYS; i++) {
-      let x = sprite.x + SW + raySpacing * i;
+      let x = spritePos.x + SW + raySpacing * i;
       const ray = new Ray(x, rayStartY, x, rayEndY);
 
       this.raycast(ray, sprite.physics.collidesWith).then(hit => {
         const dist = spriteSideY - hit.position.y;
 
         if (!result.collision || dist < closestCollisionDistance) {
+          const blergh = hit.position.y - (dy > 0 ? sprite.height : 0) - spritePos.y + sprite.y;
           closestCollisionDistance = dist;
+
           result = {
             collision: true,
-            newPosition: hit.position.y - (dy > 0 ? sprite.height : 0),
+            newPosition: blergh,
             collidedWith: new MagicArray(hit.sprite)
           };
         }
@@ -227,7 +245,7 @@ interface RaycastResult {
   sprite: Sprite;
 
   /**
-   * The position of the collision.
+   * The position of the collision in global coordinates.
    */
   position: Point;
 }

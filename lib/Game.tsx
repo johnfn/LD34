@@ -23,12 +23,12 @@ class Game {
    */
   public fixedStage: Sprite;
 
-  constructor(width: number, height: number, element: HTMLElement, debug: boolean = false) {
+  constructor(width: number, height: number, element: HTMLElement, backgroundColor: number = 0x000000, debug: boolean = false) {
     this._width = width;
     this._height = height;
 
     this._renderer = PIXI.autoDetectRenderer(width, height, {
-      backgroundColor: 0xff0000
+      backgroundColor
     });
 
     console.log(this._renderer.type)

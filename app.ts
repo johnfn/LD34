@@ -245,7 +245,7 @@ class MovingComponent extends Component<Sprite> {
 
 class MyGame extends Game {
   constructor() {
-    super(600, 400, document.getElementById("main"), true);
+    super(600, 400, document.getElementById("main"), 0x000000, true);
 
     G.map = new TiledMapParser("assets/map.json")
       .addLayerParser("Enemies", (text, x, y) => new Enemy(text, x, y))
@@ -253,9 +253,10 @@ class MyGame extends Game {
   }
 
   loadingComplete(): void {
-    console.log("Yay, loading complete");
-
     G.player = new Player();
+
+    Globals.camera.x = Globals.stage.width / 2 + 10;
+    Globals.camera.y = Globals.stage.height / 2 + 10;
 
     G.hud = new HUD();
     Globals.stage.addChild(G.hud);

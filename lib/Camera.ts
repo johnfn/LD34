@@ -22,7 +22,7 @@
 
   public get left(): number { return this._y - this._stage.height / 2; }
 
-  public moveTo(x: number, y: number): void {
+  private moveTo(x: number, y: number): void {
     this._x = x;
     this._y = y;
 
