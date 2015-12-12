@@ -76,6 +76,16 @@ class Player extends Sprite {
   }
 }
 
+class Enemy extends Sprite {
+  constructor(texture: PIXI.Texture, x: number, y: number) {
+    super(texture);
+
+    this.moveTo(50, 50);
+
+    console.log("I am an enemyyyy ahhgh");
+  }
+}
+
 class MovingComponent extends Component<Sprite> {
   postUpdate(): void { }
   preUpdate() : void { }
@@ -88,7 +98,9 @@ class MyGame extends Game {
   constructor() {
     super(600, 400, document.getElementById("main"), true);
 
-    G.map = new TiledMapParser("assets/map.json");
+    G.map = new TiledMapParser("assets/map.json")
+      .addLayerParser("Enemies", (text, x, y) => new Enemy(text, x, y))
+      .parse();
   }
 
   loadingComplete(): void {

@@ -53,17 +53,48 @@ interface Tileset {
   widthInTiles: number;
 }
 
+interface LayerProcess {
+  (texture: PIXI.Texture, x: number, y: number): Sprite;
+}
+
 class TiledMapParser extends Sprite {
   private _rootPath: string;
-  private _layers: { [key: string]: Sprite; };
+  private _layers: { [key: string]: Sprite; } = {};
+  private _path: string;
+  private _layerProcessing: { [key: string]: LayerProcess } = {};
 
   constructor(path: string) {
     super();
 
-    this._rootPath = path.slice(0, path.lastIndexOf("/") + 1);
+    this._path = path;
+  }
+
+  /**
+   * TODO: better name
+   * TODO: per-tile properties, perhaps?
+   * 
+   * Add custom function to process layer.
+   * 
+   * @param layerName
+   * @param process
+   */
+  public addLayerParser(layerName: string, process: LayerProcess): this {
+    this._layerProcessing[layerName] = process;
+
+    return this;
+  }
+
+  /**
+   * Actually create the tilemap. 
+   * 
+   * (Note: is an asynchronous process as we need to load the json. Be sure to call this
+   * in Game#constructor.)
+   */
+  public parse(): this {
+    this._rootPath = this._path.slice(0, this._path.lastIndexOf("/") + 1);
 
     let request = new XMLHttpRequest();
-    request.open('GET', path + "?" + Math.random(), true); // Cachebust the path to the map.
+    request.open('GET', this._path + "?" + Math.random(), true); // Cachebust the path to the map.
     Globals.thingsThatAreLoading++;
 
     request.onload = () => {
@@ -83,6 +114,8 @@ class TiledMapParser extends Sprite {
     };
 
     request.send();
+    
+    return this;
   }
 
   public getLayer(name: string): Sprite {
@@ -147,12 +180,19 @@ class TiledMapParser extends Sprite {
 
         // TODO - cache these textures.
         let texture = new PIXI.Texture(spritesheet.texture, crop);
-        let tile = new Sprite(texture);
+        let tile: Sprite;
+
+        // Do we have special layer processing logic?
+        if (this._layerProcessing[layerJSON.name]) {
+          tile = this._layerProcessing[layerJSON.name](texture, destX, destY);
+        } else {
+          tile = new Sprite(texture);
+
+          tile.x = destX;
+          tile.y = destY;
+        }
 
         layer.addChild(tile);
-
-        tile.x = destX;
-        tile.y = destY;
       }
 
       this.addChild(layer);
