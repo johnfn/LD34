@@ -16,7 +16,7 @@
     */
 
     this._textField = new PIXI.MultiStyleText("<one>I am a text field.</one>", {
-      one: { font: "12px Verdana", fill: "white" },
+      one: { font: "12px Verdana", fill: "black" },
     });
 
     this.displayObject.addChild(this._textField);

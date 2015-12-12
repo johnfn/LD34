@@ -1,8 +1,6 @@
 ﻿interface Physics {
   solid: boolean;
   immovable: boolean;
-  effectiveWidth?: number;
-  effectiveHeight?: number;
 }
 
 class Ray {
@@ -234,16 +232,6 @@ class PhysicsComponent extends Component<Sprite> {
   public immovable: boolean;
 
   /**
-   * Width of this object in the physics engine. Defaults to sprite.width.
-   */
-  public effectiveWidth: number;
-
-  /**
-   * Height of this object in the physics engine. Defaults to sprite.height.
-   */
-  public effectiveHeight: number;
-
-  /**
    * The things that this object can actually hit.
    */
   public collidesWith : Group<Sprite>;
@@ -258,16 +246,10 @@ class PhysicsComponent extends Component<Sprite> {
 
     this.solid        = physics.solid;
     this.immovable    = physics.immovable;
-
-    this.effectiveWidth = physics.effectiveWidth;
-    this.effectiveHeight = physics.effectiveHeight;
   }
 
   init(sprite: Sprite): void {
     super.init(sprite);
-
-    this.effectiveHeight = this.effectiveHeight || sprite.height;
-    this.effectiveWidth  = this.effectiveWidth  || sprite.width;
 
     Globals.physicsManager.add(sprite)
   }

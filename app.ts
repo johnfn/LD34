@@ -10,9 +10,7 @@ class G {
 // @component(new FollowWithCamera())
 @component(new PhysicsComponent({
   solid: true,
-  immovable: true,
-  effectiveWidth: 31,
-  effectiveHeight: 31
+  immovable: true
 }))
 class Player extends Sprite {
   vy: number = 0;
@@ -81,8 +79,6 @@ class Enemy extends Sprite {
     super(texture);
 
     this.moveTo(50, 50);
-
-    console.log("I am an enemyyyy ahhgh");
   }
 }
 
