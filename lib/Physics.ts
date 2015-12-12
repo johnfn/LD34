@@ -146,7 +146,7 @@ class PhysicsManager {
     const result = new MagicArray<U>();
 
     for (const item of items) {
-      if (Util.RectRectIntersection(sprite.bounds, item.bounds)) {
+      if (Util.RectRectIntersection(sprite.rect, item.rect)) {
         result.push(item);
       }
     }

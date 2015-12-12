@@ -16,6 +16,7 @@ class G {
 class Player extends Sprite {
   private _health: number = 10;
   public get health(): number { return this._health;  }
+  public set health(val: number) { throw new Error("Don't set health!"); }
 
   private _maxHealth: number = 10;
   public get maxHealth(): number { return this._maxHealth;  }
@@ -42,16 +43,32 @@ class Player extends Sprite {
     this.physics.collidesWith = new Group(G.map.getLayer("Wall").children);
   }
 
+  private takeDamage(amount: number): void {
+    this._health -= amount;
+
+    this.isFlickering = true;
+
+    console.log(this.health);
+  }
+
   private checkForDamage(): void {
     const collidedEnemies = this.physics.touches(Sprites.all(Enemy));
 
     if (collidedEnemies.length > 0) {
-      console.log("Ouch!");
+      for (const enemy of collidedEnemies) {
+        this.takeDamage(enemy.damage);
+
+        this.physics.touches(Sprites.all(Enemy));
+      }
     }
   }
 
   update(): void {
-    this.checkForDamage();
+    if (!this.isFlickering) {
+      this.checkForDamage();
+    } else {
+      
+    }
 
     if (Globals.keyboard.down.A) {
       this.physics.moveBy(-5, 0);
@@ -133,7 +150,7 @@ class HUD extends Sprite {
   }
 
   update(): void {
-    
+    this._healthbarText.text = `${G.player.health}/${G.player.maxHealth}`;
   }
 }
 
@@ -148,7 +165,10 @@ enum BasicEnemyState {
 }))
 class Enemy extends Sprite {
   state: BasicEnemyState;
-  speed: number = 3;
+  speed: number  = 3;
+
+  private _damage: number = 2;
+  public get damage(): number { return this._damage; }
 
   constructor(texture: PIXI.Texture, x: number, y: number) {
     super(texture);

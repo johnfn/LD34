@@ -138,7 +138,27 @@ class Sprite {
   get visible(): boolean { return this.displayObject.visible; }
   set visible(val: boolean) { this.displayObject.visible = val; }
 
+  /**
+   * Bounding rectangle for this Sprite.
+   * 
+   * TODO: This should really be a Vector or something, as the x, y properties are unused.
+   * @returns {} 
+   */
   get bounds(): PIXI.Rectangle { return this.displayObject.getBounds(); }
+
+  /**
+   * Rectangle for this sprite (x, y, width and height of Sprite).
+   * 
+   * @returns {} 
+   */
+  get rect(): PIXI.Rectangle {
+    const result = this.displayObject.getBounds();
+
+    result.x = this.x;
+    result.y = this.y;
+
+    return result;
+  }
 
   get globalXY(): [number, number] {
     let x = this.displayObject.x;

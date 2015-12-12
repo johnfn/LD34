@@ -51,7 +51,7 @@ class Sprites {
   /**
    * Get all sprites of a provided type.
    * 
-   * TODO: This could be easily cached.
+   * TODO: This could be easily cached. The only trick is inheritance.
    * @param type
    */
   public static all<T extends Sprite>(type: { new (...args: any[]) : T } = Sprite as any): Group<T> {
