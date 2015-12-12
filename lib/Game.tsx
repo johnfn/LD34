@@ -102,6 +102,8 @@ class Game {
 
     Globals._destroyList = [];
 
+    Globals.camera.update();
+
     this._renderer.render(this.fixedStage.displayObject); 
 
     requestAnimationFrame(this.update.bind(this));

@@ -49,6 +49,8 @@ class Player extends Sprite {
     this._health -= amount;
 
     this.startFlicker();
+
+    Globals.camera.shakeScreen();
   }
 
   private checkForDamage(): void {

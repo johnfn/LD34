@@ -109,6 +109,16 @@
   }
 
   /**
+   * Returns a random number between min and max.
+   * 
+   * @param min
+   * @param max
+   */
+  static RandomRange(min: number, max: number): number {
+    return Math.random() * (max - min) + min;
+  }
+
+  /**
    * Returns whether two rectangles are touching.
    * @param r1
    * @param r2
