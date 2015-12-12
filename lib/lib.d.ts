@@ -7,4 +7,4 @@
 /// <reference path="Util.ts"/>
 /// <reference path="Component.ts"/>
 /// <reference path="Physics.ts"/>
-/// <reference path="Text.ts"/>
+/// <reference path="TextField.ts"/>

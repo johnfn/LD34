@@ -273,6 +273,31 @@ class Sprite {
     return this;
   }
 
+  /**
+   * Sets z for those of us who like chainable interfaces. Higher numbers are on top
+   * of lower numbers.
+   * 
+   * @param z
+   */
+  public setZ(z: number): this {
+    this.z = z;
+
+    return this;
+  }
+
+  public setDimensions(width: number, height: number): this {
+    this.width = width;
+    this.height = height;
+
+    return this;
+  }
+
+  public addTo(sprite: Sprite): this {
+    sprite.addChild(this);
+
+    return this;
+  }
+
   public addChild<T extends Sprite>(child: T): T {
     this.displayObject.addChild(child.displayObject);
     this.sortDepths();

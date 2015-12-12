@@ -1,21 +1,6 @@
 ﻿
 
 declare module PIXI {
-  interface Style {
-    /**
-     * Example: "bold 20pt Arial
-     */
-    font?: string;
-    fill?: string | number;
-    stroke?: string | number;
-    strokeThickness?: number
-
-    dropShadow?: boolean;
-    dropShadowAngle?: number;
-    dropShadowDistance?: number;
-    dropShadowColor?: string;
-  }
-
   interface LineStyle {
     align: string;
     wordWrap: boolean;
@@ -37,7 +22,7 @@ declare module PIXI {
      * @param [lineStyle.wordWrap=false] {Boolean} Indicates if word wrap should be used
      * @param [lineStyle.wordWrapWidth=100] {Number} The width at which text will wrap, it needs wordWrap to be set to true
      */
-    constructor(text: string, textStyles: { [key: string]: Style }, lineStyle?: PIXI.LineStyle);
+    constructor(text: string, textStyles: { [key: string]: PIXI.TextStyle }, lineStyle?: PIXI.LineStyle);
 
 
     /**
@@ -49,7 +34,7 @@ declare module PIXI {
      * @param [style.wordWrap=false] {Boolean} Indicates if word wrap should be used
      * @param [style.wordWrapWidth=100] {Number} The width at which text will wrap
      */
-    setAlignmentStyle(style: Style): void;
+    setAlignmentStyle(style: PIXI.LineStyle): void;
 
     /**
      * Set the global alignment style of the text
@@ -60,9 +45,9 @@ declare module PIXI {
      * @param [style.wordWrap=false] {Boolean} Indicates if word wrap should be used
      * @param [style.wordWrapWidth=100] {Number} The width at which text will wrap
      */
-    setStyle(style: Style): void;
+    setStyle(style: PIXI.TextStyle): void;
 
-    setDefaultTextStyle(style: Style): void;
+    setDefaultTextStyle(style: PIXI.TextStyle): void;
 
     /**
      * Set the text styles for each tag
@@ -71,6 +56,6 @@ declare module PIXI {
      * @method setTextStyles
      * @param [styles] {Object.<string,Style>} The style map where the key is the tag name.
      */
-    setTextStyles(styles: { [key: string]: Style }): void;
+    setTextStyles(styles: { [key: string]: PIXI.TextStyle }): void;
   }
 }

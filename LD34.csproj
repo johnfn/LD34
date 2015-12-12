@@ -78,7 +78,7 @@
     <TypeScriptCompile Include="lib\Root.tsx" />
     <TypeScriptCompile Include="lib\Sprite.ts" />
     <TypeScriptCompile Include="lib\Stage.ts" />
-    <TypeScriptCompile Include="lib\Text.ts" />
+    <TypeScriptCompile Include="lib\TextField.ts" />
     <TypeScriptCompile Include="lib\TiledMapParser.ts" />
     <TypeScriptCompile Include="lib\Util.ts" />
     <TypeScriptCompile Include="mixins.d.ts" />
