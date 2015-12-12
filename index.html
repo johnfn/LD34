@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>TypeScript HTML App</title>
+
+    <script>
+        window.consoleCache = [];
+
+        console.log = console.error = console.info = console.debug = console.warn = function (s) {
+            window.consoleCache.push({ content: [s], metadata: "[bootstrap]" });
+        };
+    </script>
+
+    <script src="external/pixi.js"></script>
+    <script src="external/pixi.multistyletext.js"> </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react-with-addons.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="source-map.js"></script>
+    <script src="./lib/tiledjson.js"></script>
+    <script>
+        window.sourceMaps = {};
+
+        window.loadJsFile = function (path) {
+            // Load the JavaScript file.
+
+            var js = document.createElement("script");
+
+            js.type = "text/javascript";
+            js.src = path + "?" + Math.random();
+
+            document.body.appendChild(js);
+
+            // Find the source map and put it in a cache.
+
+            var client = new XMLHttpRequest();
+            client.open('GET', path + '.map');
+            client.onloadend = function () {
+                try {
+                    window.sourceMaps[path] = JSON.parse(client.responseText);
+                } catch (e) {
+                    
+                }
+            }
+            client.send();
+        };
+
+        window.loadCssFile = function(path) {
+            var fileref = document.createElement("link");
+
+            fileref.rel = "stylesheet";
+            fileref.type = "text/css";
+            fileref.href = path + "?" + Math.random();
+
+            document.getElementsByTagName("head")[0].appendChild(fileref)
+        }
+    </script>
+</head>
+<body>
+    <div id="main">
+
+    </div>
+
+    <div id="itty-test">
+        
+    </div>
+
+    <script>
+        window.loadJsFile("main.js")
+        window.loadCssFile("app.css");
+    </script>
+</body>
+</html>

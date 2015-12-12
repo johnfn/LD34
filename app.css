@@ -1,0 +1,141 @@
+﻿body {
+    font-family: Verdana;
+    font-size: 14px;
+}
+
+#content {
+    float: left;
+}
+
+#hierarchy {
+    float: left;
+    overflow: auto;
+    width: 300px;
+    height: 400px;
+    padding: 20px;
+}
+
+#inspector {
+    float: left;
+    padding: 20px;
+    overflow: auto;
+    width: 300px;
+    height: 400px;
+}
+
+/* Log */
+
+.log {
+    clear: both;
+    border: 1px solid gainsboro;
+    padding: 5px;
+    height: 300px;
+    overflow: auto;
+}
+
+.log-entry {
+    border-bottom: 1px solid gainsboro;
+    padding-bottom: 5px;
+}
+
+.count {
+    color: darkgray;
+}
+
+.log-title {
+    font-size: 18px;
+    padding-bottom: 5px;
+}
+
+.number {
+    display: inline-block;
+    vertical-align: top;
+    width: 20px;
+}
+
+.less-important {
+    color: gray;
+}
+
+.log-normal {
+    padding-left: 5px;
+    max-width: 60%;
+    display: inline-block;
+}
+
+.log-error {
+    padding-left: 5px;
+    max-width: 60%;
+    display: inline-block;
+
+    color: red;
+}
+
+
+.log-from {
+    float: right;
+}
+
+/* Inspector */
+
+.title {
+    font-weight: bold;
+
+    padding-bottom: 10px;
+}
+
+.mutableProp {
+    padding: 1px;
+}
+
+.immutableProp {
+    color: gray;
+    font-size: 10px;
+}
+
+.dividing-label {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+
+/* Individual inspect things for the inspector */
+
+.point {
+    border: 1px solid gray;
+    border-radius: 3px;
+    padding: 2px;
+}
+
+.rect {
+    border: 1px solid gray;
+    border-radius: 3px;
+    padding: 2px;
+}
+
+.prop {
+    color: gray;
+}
+
+.prop-name {
+    color: black;
+}
+
+.target-element {
+    font-weight: bold;
+}
+
+.prop-list {
+    padding-left: 20px;
+
+    border-left: 1px solid #E2E1E1;
+}
+
+a {
+    color: blue;
+    text-decoration: none;
+}
+
+a[href="#"]:visited {
+    color: blue;
+}

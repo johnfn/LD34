@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{9494F62C-B670-45AA-8177-2740B47FAD00}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <OutputPath>bin</OutputPath>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <TypeScriptToolsVersion>1.7</TypeScriptToolsVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app.css" />
+    <Content Include=".gitignore" />
+    <Content Include="external\pixi.multistyletext.js" />
+    <Content Include="index.html" />
+    <Content Include="source-map.js" />
+    <Content Include="web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="lib\Camera.ts" />
+    <TypeScriptCompile Include="lib\Component.ts" />
+    <TypeScriptCompile Include="lib\Components\DestroyWhenOffscreen.ts" />
+    <TypeScriptCompile Include="lib\Components\components.d.ts" />
+    <TypeScriptCompile Include="lib\Components\FixedToCamera.ts" />
+    <TypeScriptCompile Include="lib\Components\FollowWithCamera.ts" />
+    <TypeScriptCompile Include="lib\datastructures.d.ts" />
+    <TypeScriptCompile Include="lib\DataStructures\Group.ts" />
+    <TypeScriptCompile Include="lib\DataStructures\MagicArray.ts" />
+    <TypeScriptCompile Include="lib\DataStructures\MagicDict.ts" />
+    <TypeScriptCompile Include="lib\DataStructures\Polygon.ts" />
+    <TypeScriptCompile Include="lib\Debug\Debug.ts" />
+    <TypeScriptCompile Include="lib\Debug\Hierarchy.tsx" />
+    <TypeScriptCompile Include="lib\Debug\Inspector.tsx" />
+    <TypeScriptCompile Include="lib\Debug\InspectorItems\InspectorItemBoolean.tsx" />
+    <TypeScriptCompile Include="lib\Debug\InspectorItems\InspectorItemColor.tsx" />
+    <TypeScriptCompile Include="lib\Debug\InspectorItems\InspectorItemFunction.tsx" />
+    <TypeScriptCompile Include="lib\Debug\InspectorItems\InspectorItemNumber.tsx" />
+    <TypeScriptCompile Include="lib\Debug\InspectorItems\InspectorItemPoint.tsx" />
+    <TypeScriptCompile Include="lib\Debug\InspectorItems\InspectorItemRect.tsx" />
+    <TypeScriptCompile Include="lib\Debug\InspectorItems\InspectorItemObject.tsx" />
+    <TypeScriptCompile Include="lib\Debug\InspectorItems\InspectorItemString.tsx" />
+    <TypeScriptCompile Include="lib\Debug\TransformWidget.ts" />
+    <TypeScriptCompile Include="lib\ExternalTypings\external.d.ts" />
+    <TypeScriptCompile Include="lib\ExternalTypings\pixi.multistyletext\pixi.multistyletext.d.ts" />
+    <TypeScriptCompile Include="lib\FPSCounter.ts" />
+    <TypeScriptCompile Include="lib\Game.tsx" />
+    <TypeScriptCompile Include="lib\Globals.ts" />
+    <TypeScriptCompile Include="lib\Input\Keyboard.ts" />
+    <TypeScriptCompile Include="lib\Input\Mouse.ts" />
+    <TypeScriptCompile Include="lib\lib.d.ts" />
+    <TypeScriptCompile Include="lib\Debug\Log.tsx" />
+    <TypeScriptCompile Include="lib\Debug\LogItems\LogItemObject.tsx" />
+    <TypeScriptCompile Include="lib\Debug\LogItems\LogItemPoint.tsx" />
+    <TypeScriptCompile Include="lib\Debug\LogItems\LogItemRect.tsx" />
+    <TypeScriptCompile Include="lib\Debug\LogItems\LogItemSprite.tsx" />
+    <TypeScriptCompile Include="lib\Debug\LogItems\LogItemString.tsx" />
+    <TypeScriptCompile Include="lib\Debug\LogItems\LogItemTexture.tsx" />
+    <TypeScriptCompile Include="lib\DataStructures\Maybe.ts" />
+    <TypeScriptCompile Include="lib\Mixins\DebugDraw.ts" />
+    <TypeScriptCompile Include="lib\Mixins\Evented.ts" />
+    <TypeScriptCompile Include="lib\Mixins\MixinUtil.ts" />
+    <TypeScriptCompile Include="lib\Physics.ts" />
+    <TypeScriptCompile Include="lib\PixiExtensions\PointExtensions.ts" />
+    <TypeScriptCompile Include="lib\Root.tsx" />
+    <TypeScriptCompile Include="lib\Sprite.ts" />
+    <TypeScriptCompile Include="lib\Stage.ts" />
+    <TypeScriptCompile Include="lib\Text.ts" />
+    <TypeScriptCompile Include="lib\TiledMapParser.ts" />
+    <TypeScriptCompile Include="lib\Util.ts" />
+    <TypeScriptCompile Include="mixins.d.ts" />
+    <TypeScriptCompile Include="lib\ExternalTypings\pixi\pixi.d.ts" />
+    <TypeScriptCompile Include="lib\ExternalTypings\source-map\source-map.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config" />
+    <Content Include="README.md" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="assets\" />
+    <Folder Include="lib\ExternalTypings\react\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>PixiProject</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>58550</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:58550/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>React</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>True</TypeScriptNoImplicitAny>
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <TypeScriptOutFile>main.js</TypeScriptOutFile>
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptMapRoot />
+    <TypeScriptEmitDecoratorMetadata>True</TypeScriptEmitDecoratorMetadata>
+    <TypeScriptExperimentalDecorators>True</TypeScriptExperimentalDecorators>
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>false</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+</Project>
