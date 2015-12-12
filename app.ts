@@ -29,6 +29,10 @@ class Player extends Sprite {
   private maxVy: number      = 10;
   private gravity: number    = .5;
 
+  // Flicker state
+
+  private isFlickering: boolean = false;
+
   constructor() {
     super("assets/ship.png");
 
@@ -38,7 +42,17 @@ class Player extends Sprite {
     this.physics.collidesWith = new Group(G.map.getLayer("Wall").children);
   }
 
+  private checkForDamage(): void {
+    const collidedEnemies = this.physics.touches(Sprites.all(Enemy));
+
+    if (collidedEnemies.length > 0) {
+      console.log("Ouch!");
+    }
+  }
+
   update(): void {
+    this.checkForDamage();
+
     if (Globals.keyboard.down.A) {
       this.physics.moveBy(-5, 0);
     }

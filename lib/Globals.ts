@@ -48,6 +48,12 @@ class Globals {
 class Sprites {
   public static list = new Group<Sprite>();
 
+  /**
+   * Get all sprites of a provided type.
+   * 
+   * TODO: This could be easily cached.
+   * @param type
+   */
   public static all<T extends Sprite>(type: { new (...args: any[]) : T } = Sprite as any): Group<T> {
     const typeName = ("" + type).split("function ")[1].split("(")[0];
 

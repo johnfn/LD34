@@ -3,12 +3,14 @@
 
   private _dict: MagicDict<T, boolean>;
 
-  constructor(members: MagicArray<T> = null) {
+  constructor(...members: MagicArray<T>[]) {
     this._dict = new MagicDict<T, boolean>();
 
     if (members !== null) {
-      for (const m of members) {
-        this.add(m);
+      for (const membersList of members) {
+        for (const member of membersList) {
+          this.add(member);
+        }
       }
     }
   }
@@ -25,8 +27,8 @@
     return this._dict.contains(member);
   }
 
-  items(): T[] {
-    return this._dict.keys();
+  items(): MagicArray<T> {
+    return new MagicArray(this._dict.keys());
   }
 
   length(): number {

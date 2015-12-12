@@ -141,6 +141,19 @@ class PhysicsManager {
     }
   }
 
+  touches<T extends Sprite, U extends Sprite>(sprite: T, group: Group<U>): MagicArray<U> {
+    const items = group.items();
+    const result = new MagicArray<U>();
+
+    for (const item of items) {
+      if (Util.RectRectIntersection(sprite.bounds, item.bounds)) {
+        result.push(item);
+      }
+    }
+
+    return result;
+  }
+
   update(): void {
     // move all sprites
 
@@ -239,7 +252,7 @@ class PhysicsComponent extends Component<Sprite> {
   /**
    * The things that this object just hit this frame.
    */
-  public collidedWith : MagicArray<Sprite>;
+  public collidedWith = new MagicArray<Sprite>();
 
   constructor(physics: Physics) {
     super();
@@ -266,6 +279,17 @@ class PhysicsComponent extends Component<Sprite> {
   reset(): void {
     this.dx = 0;
     this.dy = 0;
+  }
+
+  /**
+   * Returns any sprites in the provided group that this sprite is touching.
+   * 
+   * TODO: Not the best name...
+   * 
+   * @param group
+   */
+  touches<T extends Sprite>(group: Group<T>): MagicArray<T> {
+    return Globals.physicsManager.touches(this._sprite, group);
   }
 
   /**

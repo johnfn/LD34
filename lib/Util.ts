@@ -108,6 +108,18 @@
            rect.y <= point.y && rect.y + rect.height >= point.y;
   }
 
+  /**
+   * Returns whether two rectangles are touching.
+   * @param r1
+   * @param r2
+   */
+  static RectRectIntersection(r1: PIXI.Rectangle, r2: PIXI.Rectangle): boolean {
+    return !(r2.x > r1.x + r1.width ||
+      r2.x + r2.width < r1.x ||
+      r2.y > r1.y + r1.height ||
+      r2.y + r2.height < r1.y);
+  }
+
   static Sign(val: number): number {
     if (val > 0) return 1;
     if (val < 0) return -1;
