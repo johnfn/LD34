@@ -8,6 +8,10 @@ class G {
   static hud: HUD;
 }
 
+enum PlayerEvents {
+  TakeDamage
+}
+
 // @component(new FollowWithCamera())
 @component(new PhysicsComponent({
   solid: true,
@@ -22,6 +26,8 @@ class Player extends Sprite {
   public get maxHealth(): number { return this._maxHealth;  }
 
   private vy: number = 0;
+
+  public playerEvents: Events<PlayerEvents>;
 
   // Jump state
 
@@ -42,6 +48,8 @@ class Player extends Sprite {
     this.z = 10;
     this.y = 300;
 
+    this.playerEvents = new Events<PlayerEvents>();
+
     this.physics.collidesWith = new Group(G.map.getLayer("Wall").children);
   }
 
@@ -51,6 +59,8 @@ class Player extends Sprite {
     this.startFlicker();
 
     Globals.camera.shakeScreen();
+
+    this.playerEvents.emit(PlayerEvents.TakeDamage);
   }
 
   private checkForDamage(): void {
@@ -160,6 +170,10 @@ class HUD extends Sprite {
     this.z = 20;
 
     this.createHealthbar();
+
+    G.player.playerEvents.on(PlayerEvents.TakeDamage, () => {
+      console.log("Player took damage!!!whufas");
+    });
   }
 
   createHealthbar(): void {
