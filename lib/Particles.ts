@@ -1,4 +1,40 @@
-﻿class Particle extends PIXI.Sprite {
+﻿interface ParticleBehavior {
+  dx: number;
+  dy: number;
+
+  lifetime: number;
+}
+
+enum ParticleEvents {
+  Died
+}
+
+class Particle extends PIXI.Sprite {
+  public particleEvents: Events<ParticleEvents>;
+  private _behavior: ParticleBehavior;
+
+  constructor() {
+    super();
+
+    this.particleEvents = new Events<ParticleEvents>();
+  }
+
+  setBehavior(behavior: ParticleBehavior) {
+    this._behavior      = behavior;
+  }
+
+  /**
+   * Update a particle based on its ParticleBehavior. Like a weaksauce Sprite#update.
+   */
+  update(): void {
+    this.x += this._behavior.dx;
+    this.y += this._behavior.dy;
+
+    if (this._behavior.lifetime-- < 0) {
+      this.visible = false;
+      this.particleEvents.emit(ParticleEvents.Died);
+    }
+  }
 }
 
 interface RecycledObject<T> {
@@ -23,6 +59,22 @@ class Recycler<T> {
     this._onCreate    = events.onCreate;
     this._onRecycle   = events.onRecycle;
     this._maxSize     = maxSize;
+  }
+
+  /**
+   * Get all alive items.
+   */
+  items(): T[] {
+    const result: T[] = [];
+
+    for (let i = 0; i < this._bin.length; i++) {
+      const item = this._bin[i];
+      if (item.alive) {
+        result.push(item.object);
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -114,12 +166,17 @@ class Particles extends Sprite {
     this._recycler = new Recycler(100, {
       onCreate: () => {
         const p = new Particle();
+
         this.addDO(p);
+        p.particleEvents.on(ParticleEvents.Died, () => {
+          this._recycler.remove(p);
+        });
 
         return p;
       },
       onRecycle: (p: Particle) => {
         p.texture = Util.RandomElement(this._textures);
+        p.setBehavior(this.particleBehavior());
       }
     });
 
@@ -130,12 +187,56 @@ class Particles extends Sprite {
     }
   }
 
-  addParticle() {
-    for (let i = 0; i < 200; i++) {
-      const p = this._recycler.get();
+  particleBehavior(): ParticleBehavior {
+    throw new Error("This should be overridden...");
+  }
 
-      p.x = Util.RandomRange(0, 300);
-      p.y = Util.RandomRange(0, 300);
+  addParticle(): Particle {
+    return this._recycler.get();
+  }
+
+  addParticles(num: number): Particle[] {
+    const result: Particle[] = [];
+
+    for (let i = 0; i < num; i++) {
+      result.push(this.addParticle());
     }
+
+    return result;
+  }
+
+  update(): void {
+    super.update();
+
+    const particles = this._recycler.items();
+
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].update();
+    }
+  }
+}
+
+class ParticleExplosionMaker extends Particles {
+  constructor(path: string, particleWidth: number, particleHeight: number, textureWidth: number, textureHeight: number) {
+    super(path, particleWidth, particleHeight, textureWidth, textureHeight);
+  }
+
+  explodeAt(x: number, y: number): void {
+    this.tween.addTween("explode", 10, (e: Tween) => {
+      const p = this.addParticles(10);
+
+      for (let i = 0; i < p.length; i++) {
+        p[i].x = x;
+        p[i].y = y;
+      }
+    });
+  }
+
+  particleBehavior(): ParticleBehavior {
+    return {
+      lifetime: Util.RandomRange(5, 20),
+      dx: Util.RandomRange(-5, 5),
+      dy: Util.RandomRange(-5, 5)
+    };
   }
 }

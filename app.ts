@@ -480,12 +480,9 @@ class MyGame extends Game {
 
     Globals.stage.addChild(G.map);
 
-    const fx = new Particles("assets/particles.png", 16, 16, 64, 16);
+    const fx = new ParticleExplosionMaker("assets/particles.png", 16, 16, 64, 16);
 
-    fx.addParticle();
-
-    fx.x = 100;
-    fx.y = 100;
+    fx.explodeAt(100, 100);
 
     Globals.stage.addChild(fx);
 
