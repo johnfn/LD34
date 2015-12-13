@@ -8,6 +8,8 @@ class MagicDict<Key, Value> {
 
   private _length: number = 0;
 
+  private _keys: Key[] = [];
+
   constructor(defaultValue: () => Value = null) {
     this._defaultValue = defaultValue;
   }
@@ -54,6 +56,7 @@ class MagicDict<Key, Value> {
 
     if (this._map[hash] === undefined) {
       this._length++;
+      this._keys.push(key);
     }
 
     this._map[hash]       = value;
@@ -86,12 +89,14 @@ class MagicDict<Key, Value> {
 
       delete this._hashToKey[hash];
       delete this._map[hash];
+
+      this._keys.splice(this._keys.indexOf(key), 1);
     } else {
       console.error(key, " not found in MagicDict#remove");
     }
   }
 
   keys(): Key[] {
-    return Object.keys(this._hashToKey).map(k => this._hashToKey[k]);
+    return this._keys;
   }
 }

@@ -72,20 +72,21 @@ class PhysicsManager {
       let y = spritePos.y + SW + raySpacing * i;
       const ray = new Ray(rayStartX, y, rayEndX, y);
 
-      this.raycast(ray, sprite.physics.collidesWith).then(hit => {
-        const dist = spriteSideX - hit.position.x;
+      const hit = this.raycast(ray, sprite.physics.collidesWith);
+      if (!hit) continue;
 
-        if (!result.collision || dist < closestCollisionDistance) {
-          closestCollisionDistance = dist;
-          const blergh = hit.position.x - (dx > 0 ? sprite.width : 0) - spritePos.x + sprite.x;
+      const dist = spriteSideX - hit.position.x;
 
-          result = {
-            collision: true,
-            newPosition: blergh,
-            collidedWith: new MagicArray(hit.sprite)
-          };
-        }
-      });
+      if (!result.collision || dist < closestCollisionDistance) {
+        closestCollisionDistance = dist;
+        const blergh = hit.position.x - (dx > 0 ? sprite.width : 0) - spritePos.x + sprite.x;
+
+        result = {
+          collision: true,
+          newPosition: blergh,
+          collidedWith: new MagicArray(hit.sprite)
+        };
+      }
     }
 
     return result;
@@ -112,20 +113,21 @@ class PhysicsManager {
       let x = spritePos.x + SW + raySpacing * i;
       const ray = new Ray(x, rayStartY, x, rayEndY);
 
-      this.raycast(ray, sprite.physics.collidesWith).then(hit => {
-        const dist = spriteSideY - hit.position.y;
+      const hit = this.raycast(ray, sprite.physics.collidesWith);
+      if (!hit) continue;
 
-        if (!result.collision || dist < closestCollisionDistance) {
-          const blergh = hit.position.y - (dy > 0 ? sprite.height : 0) - spritePos.y + sprite.y;
-          closestCollisionDistance = dist;
+      const dist = spriteSideY - hit.position.y;
 
-          result = {
-            collision: true,
-            newPosition: blergh,
-            collidedWith: new MagicArray(hit.sprite)
-          };
-        }
-      });
+      if (!result.collision || dist < closestCollisionDistance) {
+        const blergh = hit.position.y - (dy > 0 ? sprite.height : 0) - spritePos.y + sprite.y;
+        closestCollisionDistance = dist;
+
+        result = {
+          collision: true,
+          newPosition: blergh,
+          collidedWith: new MagicArray(hit.sprite)
+        };
+      }
     }
 
     return result;
@@ -207,13 +209,13 @@ class PhysicsManager {
    * @param ray 
    * @returns {} 
    */
-  raycast(ray: Ray, against: Group<Sprite>): Maybe<RaycastResult> {
+  raycast(ray: Ray, against: Group<Sprite>): RaycastResult {
     // TODO could (should) use a quadtree or something
 
-    if (!against) return new Maybe<RaycastResult>();
+    if (!against) return null;
 
     const againstList = against.items();
-    let result: RaycastResult = undefined;
+    let result: RaycastResult = null;
 
     // TODO: could update var in a later version of TS.
     for (var sprite of againstList) { 
@@ -223,7 +225,7 @@ class PhysicsManager {
       }
 
       Util.RayRectIntersection(ray, sprite.globalBounds).then(position => {
-        if (result === undefined ||
+        if (result === null ||
             ray.start.distance(position) < ray.start.distance(result.position)) {
 
           result = {
@@ -234,7 +236,7 @@ class PhysicsManager {
       });
     }
 
-    return new Maybe(result);
+    return result;
   }
 }
 

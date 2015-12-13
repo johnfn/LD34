@@ -23,11 +23,11 @@
   public get left(): number { return this._y - this._stage.height / 2; }
 
   private moveTo(x: number, y: number): void {
-    this._x = x;
-    this._y = y;
+    this._x = Math.round(x);
+    this._y = Math.round(y);
 
-    this._stage.x = this._stage.width / 2  - x;
-    this._stage.y = this._stage.height / 2 - y;
+    this._stage.x = this._stage.width / 2  - this._x;
+    this._stage.y = this._stage.height / 2 - this._y;
   }
 
   // screen shake state

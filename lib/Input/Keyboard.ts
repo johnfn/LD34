@@ -1,12 +1,24 @@
 ﻿class KeyInfo {
   [key: string]: boolean;
 
-  static Keys: string[] = "QWERTYUIOPASDFGHJKLZXCVBNM".split("").concat("Spacebar");
+  static Keys: string[] =
+  "QWERTYUIOPASDFGHJKLZXCVBNM".split("")
+    .concat("Spacebar")
+    .concat("Up")
+    .concat("Down")
+    .concat("Left")
+    .concat("Right");
 
   W       : boolean;
   A       : boolean;
   S       : boolean;
   D       : boolean;
+  Z       : boolean;
+  X       : boolean;
+  Up      : boolean;
+  Down    : boolean;
+  Left    : boolean;
+  Right   : boolean;
   Spacebar: boolean;
 }
 
@@ -38,7 +50,18 @@ class Keyboard {
   }
 
   private eventToKey(event: KeyboardEvent): string {
-    const str = String.fromCharCode(event.keyCode || event.which);
+    const number = event.keyCode || event.which;
+    let str: string;
+
+    switch (number) {
+      case 37: str = "Left"; break;
+      case 38: str = "Up"; break;
+      case 39: str = "Right"; break;
+      case 40: str = "Down"; break;
+
+      /* A-Z */
+      default: str = String.fromCharCode(number);
+    }
 
     if (str === " ") {
       return "Spacebar";
@@ -47,8 +70,6 @@ class Keyboard {
     if (str.length == 1) {
       return str.toUpperCase();
     }
-
-    console.log("Odd case in Keyboard#stringToKey: ", str);
 
     return Util.ToTitleCase(str);
   }

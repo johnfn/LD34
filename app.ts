@@ -6,13 +6,21 @@ class G {
   static player: Player;
   static map: TiledMapParser;
   static hud: HUD;
+
+  static get walls(): Group<Sprite> {
+    return new Group(G.map.getLayer("Wall").children);
+  }
 }
 
-enum PlayerEvents {
+interface HasHealth {
+  healthEvents: Events<HealthEvents>;
+}
+
+enum HealthEvents {
   /**
    * args: previous health, new health
    */
-  TakeDamage
+  ChangeHealth
 }
 
 // @component(new FollowWithCamera())
@@ -20,7 +28,7 @@ enum PlayerEvents {
   solid: true,
   immovable: true
 }))
-class Player extends Sprite {
+class Player extends Sprite implements HasHealth {
   private _health: number = 10;
   public get health(): number { return this._health;  }
   public set health(val: number) { throw new Error("Don't set health!"); }
@@ -30,7 +38,14 @@ class Player extends Sprite {
 
   private vy: number = 0;
 
-  public playerEvents: Events<PlayerEvents>;
+  public healthEvents: Events<HealthEvents>;
+
+  /**
+   * Facing left or right
+   */
+  private facing: number = 1;
+
+  private facingUp: Boolean = false;
 
   // Jump state
 
@@ -45,13 +60,19 @@ class Player extends Sprite {
   private isFlickering: boolean = false;
   private flickerTime: number   = 0;
 
+  // Shooting state
+
+  private SHOOTING_COOLDOWN   = 12;
+  private BULLET_SPEED        = 8;
+  private ticksTillNextBullet = 0;
+
   constructor() {
     super("assets/ship.png");
 
     this.z = 10;
     this.y = 300;
 
-    this.playerEvents = new Events<PlayerEvents>();
+    this.healthEvents = new Events<HealthEvents>();
 
     this.physics.collidesWith = new Group(G.map.getLayer("Wall").children);
   }
@@ -63,7 +84,7 @@ class Player extends Sprite {
 
     Globals.camera.shakeScreen();
 
-    this.playerEvents.emit(PlayerEvents.TakeDamage, this._health + amount, this._health);
+    this.healthEvents.emit(HealthEvents.ChangeHealth, this._health + amount, this._health);
   }
 
   private checkForDamage(): void {
@@ -109,6 +130,21 @@ class Player extends Sprite {
     this.alpha = transparent ? 0.5 : 1.0;
   }
 
+  shoot(): void {
+    if (this.ticksTillNextBullet < 0) {
+      const bullet = new Bullet(this.facing, this.facingUp ? -1 : 0, this.BULLET_SPEED);
+
+      bullet.x = this.x;
+      bullet.y = this.y;
+
+      Globals.stage.addChild(bullet);
+
+      this.ticksTillNextBullet = this.SHOOTING_COOLDOWN;
+    }
+  }
+
+  private testing: boolean = true;
+
   update(): void {
     if (!this.isFlickering) {
       this.checkForDamage();
@@ -116,21 +152,44 @@ class Player extends Sprite {
       this.processFlicker();
     }
 
-    if (Globals.keyboard.down.A) {
+    if (this.testing) {
+      this.testing = false;
+
+      for (let i = 0; i < 100; i++) {
+        const bullet = new Bullet(1, 0, this.BULLET_SPEED);
+
+        bullet.x = this.x;
+        bullet.y = this.y;
+
+        Globals.stage.addChild(bullet);  
+      }
+    }
+
+    if (Globals.keyboard.down.Left) {
+      this.facing = -1;
       this.physics.moveBy(-5, 0);
     }
 
-    if (Globals.keyboard.down.D) {
+    if (Globals.keyboard.down.Right) {
+      this.facing = 1;
       this.physics.moveBy(5, 0);
     }
 
+    this.facingUp = Globals.keyboard.down.Up;
+
+    if (Globals.keyboard.down.Z) {
+      this.shoot();
+    }
+
+    this.ticksTillNextBullet--;
+
     if (!this.isJumping) {
-      if (Globals.keyboard.down.Spacebar) {
+      if (Globals.keyboard.down.X) {
         this.vy = -this.jumpHeight;
         this.isJumping = true;
       }
     } else {
-      if (!Globals.keyboard.down.Spacebar && this.vy < 0) {
+      if (!Globals.keyboard.down.X && this.vy < 0) {
         this.vy = 0;
       }
 
@@ -158,8 +217,29 @@ class Player extends Sprite {
   }
 }
 
-@component(new FixedToCamera(0, 0))
-class HUD extends Sprite {
+@component(new PhysicsComponent({
+  solid: true,
+  immovable: true
+}))
+class Bullet extends Sprite {
+  vx: number;
+  vy: number;
+
+  constructor(signX: number, signY: number, speed: number) {
+    super("assets/bullet.png");
+
+    this.vx = signX * speed;
+    this.vy = signY * speed;
+  }
+
+  update(): void {
+    this.physics.collidesWith = new Group(Sprites.all(Enemy).items(), G.walls.items());
+
+    this.physics.moveBy(this.vx, this.vy)
+  }
+}
+
+class HealthBar extends Sprite {
   private _barWidth: number = 100;
   private _barHeight: number = 15;
 
@@ -167,14 +247,18 @@ class HUD extends Sprite {
   private _healthbarGreen: Sprite;
   private _healthbarText: TextField;
 
-  constructor() {
+  private _showText: boolean = false;
+
+  constructor(target: HasHealth, width: number = 100, height: number = 15, showText: boolean = false) {
     super();
 
-    this.z = 20;
+    this._showText = showText;
+    this._barWidth = width;
+    this._barHeight = height;
 
     this.createHealthbar();
 
-    G.player.playerEvents.on(PlayerEvents.TakeDamage, (prevHealth: number, currentHealth: number) => {
+    target.healthEvents.on(HealthEvents.ChangeHealth, (prevHealth: number, currentHealth: number) => {
       this.tween.addTween("animate-healthbar", 60, (e: Tween) => {
         this.animateHealthbar(e, prevHealth, currentHealth);
       })
@@ -201,15 +285,32 @@ class HUD extends Sprite {
       .setDimensions(this._barWidth, this._barHeight)
       .addTo(this);
 
-    this._healthbarText = new TextField("10/10")
-      .setDefaultTextStyle({ font: "12px Verdana", fill: "white" })
-      .moveTo(12, 10)
-      .setZ(6)
-      .addTo(this);
+    if (this._showText) {
+      this._healthbarText = new TextField("10/10")
+        .setDefaultTextStyle({ font: "12px Verdana", fill: "white" })
+        .moveTo(12, 10)
+        .setZ(6)
+        .addTo(this);
+    }
   }
 
   update(): void {
-    this._healthbarText.text = `${G.player.health}/${G.player.maxHealth}`;
+    if (this._showText) {
+      this._healthbarText.text = `${G.player.health}/${G.player.maxHealth}`;
+    }
+  }
+}
+
+@component(new FixedToCamera(0, 0))
+class HUD extends Sprite {
+  private _healthBar: HealthBar;
+
+  constructor() {
+    super();
+
+    this.z = 20;
+    this._healthBar = new HealthBar(G.player, 100, 15, true);
+    this.addChild(this._healthBar);
   }
 }
 
@@ -281,8 +382,8 @@ class MyGame extends Game {
   loadingComplete(): void {
     G.player = new Player();
 
-    Globals.camera.x = Globals.stage.width / 2 + 10;
-    Globals.camera.y = Globals.stage.height / 2 + 10;
+    Globals.camera.x = Globals.stage.width / 2;
+    Globals.camera.y = Globals.stage.height / 2;
 
     G.hud = new HUD();
     Globals.stage.addChild(G.hud);

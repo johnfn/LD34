@@ -189,13 +189,22 @@
       return "[object]";
     }
 
+    if ((target as any).__className) {
+      return (target as any).__className;
+    }
+
     let constructor = ("" + target.constructor);
+    let result: string;
 
     if (constructor.indexOf("function ") !== -1) {
-      return ("" + target.constructor).split("function ")[1].split("(")[0];
+      result = ("" + target.constructor).split("function ")[1].split("(")[0];
     } else {
-      return "[stubborn builtin]"
+      result = "[stubborn builtin]"
     }
+
+    (target as any).__className = result;
+
+    return result;
   }
 
   static StartsWith(str: string, prefix: string): boolean {
