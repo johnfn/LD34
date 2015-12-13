@@ -146,6 +146,8 @@ class Player extends Sprite implements HasHealth {
   private testing: boolean = true;
 
   update(): void {
+    super.update();
+
     if (!this.isFlickering) {
       this.checkForDamage();
     } else {
@@ -233,6 +235,8 @@ class Bullet extends Sprite {
   }
 
   update(): void {
+    super.update();
+
     this.physics.collidesWith = Sprites.by(x => x instanceof Enemy || x.tags.indexOf("Wall") != -1)
 
     this.physics.moveBy(this.vx, this.vy)
@@ -295,6 +299,8 @@ class HealthBar extends Sprite {
   }
 
   update(): void {
+    super.update();
+
     if (this._showText) {
       this._healthbarText.text = `${G.player.health}/${G.player.maxHealth}`;
     }
@@ -342,6 +348,8 @@ class Enemy extends Sprite {
   }
 
   update(): void {
+    super.update();
+
     switch (this.state) {
       case BasicEnemyState.MovingLeft:
         if (this.physics.touchingLeft) {

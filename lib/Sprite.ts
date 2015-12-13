@@ -174,7 +174,10 @@ class Sprite {
     return result;
   }
 
+  private _globalXYCache: Point = undefined;
   get globalXY(): Point {
+    if (this._globalXYCache) return this._globalXYCache;
+
     let x = this.displayObject.x;
     let y = this.displayObject.y;
 
@@ -187,7 +190,7 @@ class Sprite {
       parent = parent.parent;
     }
 
-    return new Point(x, y);
+    return this._globalXYCache = new Point(x, y);
   }
 
   get globalX(): number {
@@ -355,7 +358,10 @@ class Sprite {
     return newSprite;
   }
 
-  public update(): void { }
+  public update(): void {
+    this._globalXYCache = undefined;
+  }
+
   public postUpdate(): void { }
 
   /**
