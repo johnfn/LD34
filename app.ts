@@ -497,6 +497,8 @@ class Enemy extends Sprite implements HasHealth {
 
   healthEvents: Events<HealthEvents>;
 
+  DROP_RATE: number = 1.0;
+
   private _hitDamage: number = 2;
   public get hitDamage(): number { return this._hitDamage; }
 
@@ -560,7 +562,10 @@ class Enemy extends Sprite implements HasHealth {
   }
 
   die(): void {
-    // ...
+    if (Math.random() < this.DROP_RATE) {
+      Globals.stage.addChild(new Fuel().moveTo(this.x, this.y));
+    }
+
     this.destroy();
   }
 }
