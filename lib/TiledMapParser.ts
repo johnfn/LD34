@@ -83,12 +83,17 @@ interface LayerProcess {
   (texture: PIXI.Texture, x: number, y: number): Sprite;
 }
 
+interface ObjectProcess {
+  (texture: PIXI.Texture, json: TiledObjectJSON): Sprite;
+}
+
 class TiledMapParser extends Sprite {
   private _rootPath: string;
   private _tileLayers: { [key: string]: Sprite; } = {};
   private _objectLayers: { [key: string]: Sprite; } = {};
   private _path: string;
   private _layerProcessing: { [key: string]: LayerProcess } = {};
+  private _objectProcessing: { [key: number]: ObjectProcess } = {};
 
   /**
    * Width of a tile (we are making an assumption that tiles across spreadsheets
@@ -118,6 +123,17 @@ class TiledMapParser extends Sprite {
    */
   public addLayerParser(layerName: string, process: LayerProcess): this {
     this._layerProcessing[layerName] = process;
+
+    return this;
+  }
+
+  /**
+   * Add custom function to process object (by gid)
+   * @param gid
+   * @param process
+   */
+  public addObjectParser(gid: number, process: ObjectProcess): this {
+    this._objectProcessing[gid] = process;
 
     return this;
   }
@@ -233,7 +249,13 @@ class TiledMapParser extends Sprite {
       const texture = this.gidToSomethingMoreUseful(obj.gid, tilesets);
       if (!texture) continue;
 
-      const tile: Sprite = new Sprite(texture);
+      let tile: Sprite;
+
+      if (this._objectProcessing[obj.gid]) {
+        tile = this._objectProcessing[obj.gid](texture, obj);
+      } else {
+        tile = new Sprite(texture);
+      }
 
       tile.x = obj.x;
       tile.y = obj.y;
@@ -242,6 +264,8 @@ class TiledMapParser extends Sprite {
 
       layer.addChild(tile);
     }
+
+    this.addChild(layer);
 
     return layer;
   }
