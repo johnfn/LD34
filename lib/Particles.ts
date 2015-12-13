@@ -15,6 +15,11 @@
   rotation: number;
 
   /**
+   * Do the particles obey the laws of gravity?
+   */
+  gravity: boolean;
+
+  /**
    * Number of ticks this particle will stay alive.
    */
   lifetime: number;
@@ -29,6 +34,7 @@ class Particle extends PIXI.Sprite {
   
   private _behavior: ParticleBehavior;
   private _ticksLeft: number;
+  private _effectiveDy: number;
 
   constructor(width: number, height: number) {
     super();
@@ -38,8 +44,9 @@ class Particle extends PIXI.Sprite {
   }
 
   setBehavior(behavior: ParticleBehavior) {
-    this._behavior      = behavior;
-    this._ticksLeft     = behavior.lifetime;
+    this._behavior    = behavior;
+    this._ticksLeft   = behavior.lifetime;
+    this._effectiveDy = behavior.dy;
   }
 
   /**
@@ -47,14 +54,17 @@ class Particle extends PIXI.Sprite {
    */
   update(): void {
     this.x += this._behavior.dx;
-    this.y += this._behavior.dy;
+    this.y += this._effectiveDy;
+
+    if (this._behavior.gravity) {
+      this._effectiveDy += 1;
+    }
 
     this.rotation += this._behavior.rotation;
 
     this.alpha = Util.AntiLerp(0, this._behavior.lifetime, this._ticksLeft);
 
     if (this._ticksLeft-- < 0) {
-      this.visible = false;
       this.particleEvents.emit(ParticleEvents.Died);
     }
   }
@@ -68,8 +78,10 @@ interface RecycledObject<T> {
 
 /**
  * Object recycling.
+ * 
+ * Haha wow I totally guessed that extends syntax and got it I'm awesome
  */
-class Recycler<T> {
+class Recycler<T extends { visible: boolean }> {
   private _bin: RecycledObject<T>[] = [];
   private _maxSize: number;
   private _onCreate: () => T;
@@ -107,8 +119,11 @@ class Recycler<T> {
    */
   remove(o: T): void {
     for (let i = 0; i < this._bin.length; i++) {
-      if (this._bin[i].object === o) {
-        this._bin[i].alive = false;
+      const item = this._bin[i];
+
+      if (item.object === o) {
+        item.object.visible = true;
+        item.alive = false;
       }
     }
   }
@@ -149,10 +164,13 @@ class Recycler<T> {
       }
 
       if (!result) {
-        // Recycle!
-        this._onRecycle(oldest.object);
         result = oldest.object;
       }
+
+      // Recycle!
+      this._onRecycle(result);
+
+      result.visible = true;
 
       return result;
     }
@@ -246,7 +264,7 @@ class ParticleExplosionMaker extends Particles {
 
   explodeAt(x: number, y: number): void {
     this.tween.addTween("explode", 10, (e: Tween) => {
-      const p = this.addParticles(5);
+      const p = this.addParticles(2);
 
       for (let i = 0; i < p.length; i++) {
         p[i].x = x;
@@ -260,6 +278,7 @@ class ParticleExplosionMaker extends Particles {
 
     return {
       lifetime: Util.RandomRange(5, 20),
+      gravity: true,
       dx: pt.x * 4,
       dy: pt.y * 4,
       rotation: Util.RandomRange(-.5, .5)

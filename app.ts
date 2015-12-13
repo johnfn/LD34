@@ -6,6 +6,7 @@ class G {
   static player: Player;
   static map: TiledMapParser;
   static hud: HUD;
+  static explosionMaker: ParticleExplosionMaker;
 
   static get walls(): Group<Sprite> {
     return new Group(G.map.getLayer("Wall").children);
@@ -259,6 +260,13 @@ class Bullet extends Sprite {
     this.height = 16;
   }
 
+  die(): void {
+    G.explosionMaker.explodeAt(this.globalX, this.globalY);
+    Globals.camera.shakeScreen(3);
+
+    this.destroy();
+  }
+
   update(): void {
     super.update();
 
@@ -275,7 +283,7 @@ class Bullet extends Sprite {
         }
       }
 
-      this.destroy();
+      this.die();
     }
   }
 }
@@ -480,11 +488,9 @@ class MyGame extends Game {
 
     Globals.stage.addChild(G.map);
 
-    const fx = new ParticleExplosionMaker("assets/particles.png", 16, 16, 64, 16);
+    G.explosionMaker = new ParticleExplosionMaker("assets/particles.png", 16, 16, 64, 16);
 
-    fx.explodeAt(100, 100);
-
-    Globals.stage.addChild(fx);
+    Globals.stage.addChild(G.explosionMaker);
 
     new FPSCounter();
 
