@@ -233,7 +233,7 @@ class Bullet extends Sprite {
   }
 
   update(): void {
-    this.physics.collidesWith = new Group(Sprites.all(Enemy).items(), G.walls.items());
+    this.physics.collidesWith = Sprites.by(x => x instanceof Enemy || x.tags.indexOf("Wall") != -1)
 
     this.physics.moveBy(this.vx, this.vy)
   }

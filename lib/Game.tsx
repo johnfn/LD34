@@ -31,8 +31,6 @@ class Game {
       backgroundColor
     });
 
-    console.log(this._renderer.type)
-
     this.fixedStage = new Sprite();
 
     this.stage = new Stage(width, height, debug);
@@ -54,7 +52,6 @@ class Game {
   }
 
   loadingComplete(): void {
-    console.log("woo?");
     // Kick off the main game loop.
     requestAnimationFrame(() => this.update());
   }

@@ -192,6 +192,8 @@ class TiledMapParser extends Sprite {
           tile.y = destY;
         }
 
+        tile.tags.push(layerJSON.name);
+
         layer.addChild(tile);
       }
 

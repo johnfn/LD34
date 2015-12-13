@@ -47,6 +47,8 @@ class Globals {
 
 class Sprites {
   public static list = new Group<Sprite>();
+
+  private static _all: Sprite[] = [];
   private static _cache: { [key: string]: Group<Sprite> } = {};
 
   /**
@@ -67,6 +69,7 @@ class Sprites {
     const typeName = Util.GetClassName(s);
 
     this.list.add(s);
+    this._all.push(s);
 
     if (!Sprites._cache[typeName]) {
       Sprites._cache[typeName] = new Group<Sprite>();
@@ -75,9 +78,22 @@ class Sprites {
     Sprites._cache[typeName].add(s);
   }
 
+  public static by(fn: (s: Sprite) => boolean): Group<Sprite> {
+    const result: Sprite[] = [];
+
+    for (let i = 0; i < this._all.length; i++) {
+      const item = this._all[i];
+
+      if (fn(item)) result.push(item);
+    }
+
+    return new Group(result);
+  }
+
   public static remove<T extends Sprite>(s: T): void {
     const typeName = Util.GetClassName(s);
 
+    this._all.splice(this._all.indexOf(s), 1);
     this.list.remove(s);
 
     Sprites._cache[typeName].remove(s);

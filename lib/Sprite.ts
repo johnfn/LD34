@@ -43,6 +43,8 @@ class Sprite {
 
   public texture: PIXI.Texture;
 
+  public tags: string[] = [];
+
   protected _z: number;
 
   public components: Component<Sprite>[];
