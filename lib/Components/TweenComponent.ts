@@ -71,13 +71,6 @@ class TweenComponent extends Component<Sprite> {
    * @param onTick
    */
   addTween(name: string, duration: number, onTick: TweenEvent) {
-    if (this._tweens[name]) {
-      // TODO: Probably want to allow this at some point, but not now!
-
-      console.error("That tween already exists!");
-      return;
-    }
-
     this._tweens[name] = {
       name,
       duration,

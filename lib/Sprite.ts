@@ -166,12 +166,7 @@ class Sprite {
    * @returns {} 
    */
   get rect(): PIXI.Rectangle {
-    const result = this.displayObject.getBounds();
-
-    result.x = this.x;
-    result.y = this.y;
-
-    return result;
+    return new PIXI.Rectangle(this.x, this.y, this.width, this.height);
   }
 
   private _globalXYCache: Point = undefined;

@@ -143,6 +143,8 @@ class PhysicsManager {
         sprite.physics.touchingLeft  = dx < 0;
         sprite.physics.touchingRight = dx > 0;
 
+        sprite.physics.touching      = sprite.physics.touching || dx != 0;
+
         sprite.physics.collidedWith.addAll(result.collidedWith)
       }
     }
@@ -155,6 +157,8 @@ class PhysicsManager {
       if (result.collision) {
         sprite.physics.touchingTop    = dy < 0;
         sprite.physics.touchingBottom = dy > 0;
+
+        sprite.physics.touching       = sprite.physics.touching || dy != 0;
 
         sprite.physics.collidedWith.addAll(result.collidedWith)
       }
@@ -256,6 +260,7 @@ class PhysicsComponent extends Component<Sprite> {
   public dx: number = 0;
   public dy: number = 0;
 
+  public touching       : boolean = false;
   public touchingBottom : boolean = false;
   public touchingTop    : boolean = false;
   public touchingRight  : boolean = false;
@@ -316,6 +321,8 @@ class PhysicsComponent extends Component<Sprite> {
    * Called right before a physics update.
    */
   resetFlags(): void {
+    this.touching       = false;
+
     this.touchingBottom = false;
     this.touchingTop    = false;
     this.touchingLeft   = false;

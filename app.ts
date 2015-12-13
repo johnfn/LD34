@@ -14,6 +14,8 @@ class G {
 
 interface HasHealth {
   healthEvents: Events<HealthEvents>;
+  health: number;
+  maxHealth: number;
 }
 
 enum HealthEvents {
@@ -37,6 +39,11 @@ class Player extends Sprite implements HasHealth {
   public get maxHealth(): number { return this._maxHealth;  }
 
   private vy: number = 0;
+
+  /**
+   * Amount of damage we can deal.
+   */
+  private damage: number = 2;
 
   public healthEvents: Events<HealthEvents>;
 
@@ -92,7 +99,7 @@ class Player extends Sprite implements HasHealth {
 
     if (collidedEnemies.length > 0) {
       for (const enemy of collidedEnemies) {
-        this.takeDamage(enemy.damage);
+        this.takeDamage(enemy.hitDamage);
 
         this.physics.touches(Sprites.all(Enemy));
       }
@@ -132,7 +139,7 @@ class Player extends Sprite implements HasHealth {
 
   shoot(): void {
     if (this.ticksTillNextBullet < 0) {
-      const bullet = new Bullet(this.facing, this.facingUp ? -1 : 0, this.BULLET_SPEED);
+      const bullet = new Bullet(this.facing, this.facingUp ? -1 : 0, this.BULLET_SPEED, this.damage);
 
       bullet.x = this.x;
       bullet.y = this.y;
@@ -154,10 +161,11 @@ class Player extends Sprite implements HasHealth {
       this.processFlicker();
     }
 
+    /*
     if (this.testing) {
       this.testing = false;
 
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 500; i++) {
         const bullet = new Bullet(1, 0, this.BULLET_SPEED);
 
         bullet.x = this.x;
@@ -166,6 +174,7 @@ class Player extends Sprite implements HasHealth {
         Globals.stage.addChild(bullet);  
       }
     }
+    */
 
     if (Globals.keyboard.down.Left) {
       this.facing = -1;
@@ -227,19 +236,37 @@ class Bullet extends Sprite {
   vx: number;
   vy: number;
 
-  constructor(signX: number, signY: number, speed: number) {
+  damage: number;
+
+  constructor(signX: number, signY: number, speed: number, damage: number) {
     super("assets/bullet.png");
 
     this.vx = signX * speed;
     this.vy = signY * speed;
+    this.damage = damage;
+
+    this.width = 16;
+    this.height = 16;
   }
 
   update(): void {
     super.update();
 
-    this.physics.collidesWith = Sprites.by(x => x instanceof Enemy || x.tags.indexOf("Wall") != -1)
+    const colliders = this.physics.touches(Sprites.by(x => x instanceof Enemy || x.tags.indexOf("Wall") != -1))
 
     this.physics.moveBy(this.vx, this.vy)
+
+    if (colliders.length) {
+      for (const e of colliders) {
+        if (e instanceof Enemy) {
+          e.damage(this.damage);
+
+          break;
+        }
+      }
+
+      this.destroy();
+    }
   }
 }
 
@@ -253,9 +280,12 @@ class HealthBar extends Sprite {
 
   private _showText: boolean = false;
 
+  private _target: HasHealth;
+
   constructor(target: HasHealth, width: number = 100, height: number = 15, showText: boolean = false) {
     super();
 
+    this._target = target;
     this._showText = showText;
     this._barWidth = width;
     this._barHeight = height;
@@ -270,8 +300,8 @@ class HealthBar extends Sprite {
   }
 
   animateHealthbar(e: Tween, prevHealth: number, currentHealth: number): void {
-    const prevWidth: number = (prevHealth / G.player.maxHealth) * this._barWidth;
-    const nextWidth: number = (currentHealth / G.player.maxHealth) * this._barWidth;
+    const prevWidth: number = (prevHealth / this._target.maxHealth) * this._barWidth;
+    const nextWidth: number = (currentHealth / this._target.maxHealth) * this._barWidth;
 
     this._healthbarGreen.width = Util.Lerp(prevWidth, nextWidth, e.percentage);
   }
@@ -329,26 +359,44 @@ enum BasicEnemyState {
   solid: true,
   immovable: true
 }))
-class Enemy extends Sprite {
+class Enemy extends Sprite implements HasHealth {
   state: BasicEnemyState;
-  speed: number  = 3;
+  speed: number  = 0;
 
-  private _damage: number = 2;
-  public get damage(): number { return this._damage; }
+  health: number = 400;
+  maxHealth: number = 400;
+
+  healthBar: HealthBar
+
+  healthEvents: Events<HealthEvents>;
+
+  private _hitDamage: number = 2;
+  public get hitDamage(): number { return this._hitDamage; }
 
   constructor(texture: PIXI.Texture, x: number, y: number) {
     super(texture);
 
+    this.healthEvents = new Events<HealthEvents>();
     this.state = BasicEnemyState.MovingLeft;
     this.moveTo(x, y);
+    this.healthBar = new HealthBar(this, 50, 10).setZ(10);
+    this.addChild(this.healthBar);
+
 
     Globals.events.on(GlobalEvents.LoadingIsDone, () => {
       this.physics.collidesWith = new Group(G.map.getLayer("Wall").children);
     });
   }
 
+  positionHealthBar(): void {
+    this.healthBar.x = -20  
+    this.healthBar.y = -25;
+  }
+
   update(): void {
     super.update();
+
+    this.positionHealthBar();
 
     switch (this.state) {
       case BasicEnemyState.MovingLeft:
@@ -367,6 +415,26 @@ class Enemy extends Sprite {
         }
         break;
     }
+  }
+
+  /**
+   * Deal damage to this enemy
+
+   * @param amount
+   */
+  damage(amount: number): void {
+    this.health -= amount;
+
+    if (this.health < 0) {
+      this.die();
+    }
+
+    this.healthEvents.emit(HealthEvents.ChangeHealth, this.health + amount, this.health);
+  }
+
+  die(): void {
+    // ...
+    this.destroy();
   }
 }
 
