@@ -74,6 +74,7 @@
     <TypeScriptCompile Include="lib\Mixins\DebugDraw.ts" />
     <TypeScriptCompile Include="lib\Mixins\Evented.ts" />
     <TypeScriptCompile Include="lib\Mixins\MixinUtil.ts" />
+    <TypeScriptCompile Include="lib\Particles.ts" />
     <TypeScriptCompile Include="lib\Physics.ts" />
     <TypeScriptCompile Include="lib\PixiExtensions\PointExtensions.ts" />
     <TypeScriptCompile Include="lib\Root.tsx" />

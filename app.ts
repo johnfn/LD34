@@ -139,7 +139,17 @@ class Player extends Sprite implements HasHealth {
 
   shoot(): void {
     if (this.ticksTillNextBullet < 0) {
-      const bullet = new Bullet(this.facing, this.facingUp ? -1 : 0, this.BULLET_SPEED, this.damage);
+      let dx = 0, dy = 0;
+
+      if (Globals.keyboard.down.Up) {
+        dx = (Globals.keyboard.down.Left || Globals.keyboard.down.Right) ? this.facing : 0;
+        dy = -1;
+      } else {
+        dx = this.facing;
+        dy = 0;
+      }
+
+      const bullet = new Bullet(dx, dy, this.BULLET_SPEED, this.damage);
 
       bullet.x = this.x;
       bullet.y = this.y;
@@ -293,7 +303,7 @@ class HealthBar extends Sprite {
     this.createHealthbar();
 
     target.healthEvents.on(HealthEvents.ChangeHealth, (prevHealth: number, currentHealth: number) => {
-      this.tween.addTween("animate-healthbar", 60, (e: Tween) => {
+      this.tween.addTween("animate-healthbar", 15, (e: Tween) => {
         this.animateHealthbar(e, prevHealth, currentHealth);
       })
     });
@@ -361,10 +371,10 @@ enum BasicEnemyState {
 }))
 class Enemy extends Sprite implements HasHealth {
   state: BasicEnemyState;
-  speed: number  = 0;
+  speed: number  = 2;
 
-  health: number = 400;
-  maxHealth: number = 400;
+  health: number = 8;
+  maxHealth: number = 8;
 
   healthBar: HealthBar
 
@@ -425,7 +435,7 @@ class Enemy extends Sprite implements HasHealth {
   damage(amount: number): void {
     this.health -= amount;
 
-    if (this.health < 0) {
+    if (this.health <= 0) {
       this.die();
     }
 
@@ -469,6 +479,15 @@ class MyGame extends Game {
     G.map.z = -10;
 
     Globals.stage.addChild(G.map);
+
+    const fx = new Particles("assets/particles.png", 16, 16, 64, 16);
+
+    fx.addParticle();
+
+    fx.x = 100;
+    fx.y = 100;
+
+    Globals.stage.addChild(fx);
 
     new FPSCounter();
 

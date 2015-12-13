@@ -333,6 +333,13 @@ class Sprite {
     return this;
   }
 
+  /**
+   * Adds a child to this Sprite
+   * 
+   * TODO: returning the child seems incorrect here.
+
+   * @param child
+   */
   public addChild<T extends Sprite>(child: T): T {
     this.displayObject.addChild(child.displayObject);
     this.sortDepths();
@@ -341,6 +348,12 @@ class Sprite {
     child.events.emit(SpriteEvents.ChangeParent, this);
 
     return child;
+  }
+
+  public addDO(child: PIXI.DisplayObject): this {
+    this.displayObject.addChild(child);
+      
+    return this;
   }
 
   public removeChild(child: Sprite) {
