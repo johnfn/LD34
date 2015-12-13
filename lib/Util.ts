@@ -118,6 +118,10 @@
     return Math.random() * (max - min) + min;
   }
 
+  static RandomElement<T>(arr: T[]): T {
+    return arr[Math.floor(Util.RandomRange(0, arr.length))];
+  }
+
   /**
    * Linearly interpolate value (expected to be between 0-1) in between from and to.
    * @param from
