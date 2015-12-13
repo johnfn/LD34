@@ -3,6 +3,8 @@
 
   private _dict: { [key: string]: T } = {};
 
+  private _vals: T[] = [];
+
   constructor(...members: T[][]) {
     if (members !== null) {
       for (const membersList of members) {
@@ -15,11 +17,13 @@
 
   add(member: T): void {
     this._dict[member.hash] = member;
+    this._vals.push(member);
     this._length++;
   }
 
   remove(member: T): void {
     delete this._dict[member.hash];
+    this._vals.splice(this._vals.indexOf(member), 1);
     this._length--;
   }
 
@@ -28,13 +32,7 @@
   }
 
   items(): T[] {
-    const vals: T[] = [];
-
-    for (var k in this._dict) {
-      vals.push(this._dict[k]);
-    }
-
-    return vals;
+    return this._vals;
   }
 
   length(): number {
