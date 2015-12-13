@@ -1,7 +1,22 @@
 ﻿interface ParticleBehavior {
+  /**
+   * x speed of the particle.
+   */
   dx: number;
+
+  /**
+   * y speed of the particle.
+   */
   dy: number;
 
+  /**
+   * Rotation speed of the particle (in radians).
+   */
+  rotation: number;
+
+  /**
+   * Number of ticks this particle will stay alive.
+   */
   lifetime: number;
 }
 
@@ -11,16 +26,20 @@ enum ParticleEvents {
 
 class Particle extends PIXI.Sprite {
   public particleEvents: Events<ParticleEvents>;
+  
   private _behavior: ParticleBehavior;
+  private _ticksLeft: number;
 
-  constructor() {
+  constructor(width: number, height: number) {
     super();
 
+    this.pivot = new PIXI.Point(width / 2, height / 2);
     this.particleEvents = new Events<ParticleEvents>();
   }
 
   setBehavior(behavior: ParticleBehavior) {
     this._behavior      = behavior;
+    this._ticksLeft     = behavior.lifetime;
   }
 
   /**
@@ -30,7 +49,11 @@ class Particle extends PIXI.Sprite {
     this.x += this._behavior.dx;
     this.y += this._behavior.dy;
 
-    if (this._behavior.lifetime-- < 0) {
+    this.rotation += this._behavior.rotation;
+
+    this.alpha = Util.AntiLerp(0, this._behavior.lifetime, this._ticksLeft);
+
+    if (this._ticksLeft-- < 0) {
       this.visible = false;
       this.particleEvents.emit(ParticleEvents.Died);
     }
@@ -165,7 +188,7 @@ class Particles extends Sprite {
 
     this._recycler = new Recycler(100, {
       onCreate: () => {
-        const p = new Particle();
+        const p = new Particle(particleWidth, particleHeight);
 
         this.addDO(p);
         p.particleEvents.on(ParticleEvents.Died, () => {
@@ -223,7 +246,7 @@ class ParticleExplosionMaker extends Particles {
 
   explodeAt(x: number, y: number): void {
     this.tween.addTween("explode", 10, (e: Tween) => {
-      const p = this.addParticles(10);
+      const p = this.addParticles(5);
 
       for (let i = 0; i < p.length; i++) {
         p[i].x = x;
@@ -233,10 +256,13 @@ class ParticleExplosionMaker extends Particles {
   }
 
   particleBehavior(): ParticleBehavior {
+    const pt = Util.RandomPointOnUnitCircle();
+
     return {
       lifetime: Util.RandomRange(5, 20),
-      dx: Util.RandomRange(-5, 5),
-      dy: Util.RandomRange(-5, 5)
+      dx: pt.x * 4,
+      dy: pt.y * 4,
+      rotation: Util.RandomRange(-.5, .5)
     };
   }
 }

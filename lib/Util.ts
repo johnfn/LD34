@@ -118,8 +118,24 @@
     return Math.random() * (max - min) + min;
   }
 
+  /**
+   * Choose a random element of the provided array.
+   * @param arr
+   */
   static RandomElement<T>(arr: T[]): T {
     return arr[Math.floor(Util.RandomRange(0, arr.length))];
+  }
+
+  /**
+   * Generate a point selected randomly from all points on the unit circle.
+   * 
+   * Handy for all sorts of things. If you can't of a thing this is handy for,
+   * then you suck.
+   */
+  static RandomPointOnUnitCircle(): PIXI.Point {
+    const theta = 2 * Math.PI * Math.random();
+
+    return new PIXI.Point(Math.sin(theta), Math.cos(theta));
   }
 
   /**
@@ -130,6 +146,18 @@
    */
   static Lerp(from: number, to: number, value: number): number {
     return from + (to - from) * value;
+  }
+
+  /**
+   * Return the percentage that value is between from and to.
+   * 
+   * TODO: I'm sure there's a better name for this LOL
+   * @param from
+   * @param to
+   * @param value
+   */
+  static AntiLerp(from: number, to: number, value: number): number {
+    return (value - from) / (to - from);
   }
 
   /**
