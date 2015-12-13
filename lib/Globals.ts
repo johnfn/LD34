@@ -47,11 +47,10 @@ class Globals {
 
 class Sprites {
   public static list = new Group<Sprite>();
+  private static _cache: { [key: string]: Group<Sprite> } = {};
 
   /**
    * Get all sprites of a provided type.
-   * 
-   * TODO: This could be easily cached. The only trick is inheritance.
    * @param type
    */
   public static all<T extends Sprite>(type: { new (...args: any[]) : T } = Sprite as any): Group<T> {
@@ -61,25 +60,26 @@ class Sprites {
       return Sprites.list as Group<T>;
     }
 
-    const sprites  = Sprites.list.items();
-    const result   = new Group<T>();
-
-    for (const s of sprites) {
-      const name = Util.GetClassName(s);
-
-      if (Util.GetClassName(s) === typeName) {
-        result.add(s as T);
-      }
-    }
-
-    return result;
+    return Sprites._cache[typeName] as Group<T>;
   }
 
   public static add<T extends Sprite>(s: T): void {
+    const typeName = Util.GetClassName(s);
+
     this.list.add(s);
+
+    if (!Sprites._cache[typeName]) {
+      Sprites._cache[typeName] = new Group<Sprite>();
+    }
+
+    Sprites._cache[typeName].add(s);
   }
 
   public static remove<T extends Sprite>(s: T): void {
+    const typeName = Util.GetClassName(s);
+
     this.list.remove(s);
+
+    Sprites._cache[typeName].remove(s);
   }
 }
