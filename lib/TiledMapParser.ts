@@ -29,7 +29,7 @@ interface TiledMapJSON {
 
   properties: ITiledProperties;
   tilesets: TiledTilesetJSON[];
-  layers: (TiledMapLayerJSON | TiledObjectJSON)[];
+  layers: (TiledMapLayerJSON | TiledMapObjectLayerJSON)[];
 }
 
 interface TiledMapLayerJSON {
@@ -89,6 +89,17 @@ class TiledMapParser extends Sprite {
   private _objectLayers: { [key: string]: Sprite; } = {};
   private _path: string;
   private _layerProcessing: { [key: string]: LayerProcess } = {};
+
+  /**
+   * Width of a tile (we are making an assumption that tiles across spreadsheets
+   * have the same width!)
+   */
+  private _tileWidth: number;
+
+  /**
+   * Height of a tile (see width disclaimer)
+   */
+  private _tileHeight: number;
 
   constructor(path: string) {
     super();
@@ -178,6 +189,9 @@ class TiledMapParser extends Sprite {
         lastGID: i === tilesetsJSON.length - 1 ? Number.POSITIVE_INFINITY : nextTileset.firstgid,
         widthInTiles: currentTileset.imagewidth / currentTileset.tilewidth
       });
+
+      this._tileWidth = currentTileset.tilewidth;
+      this._tileHeight = currentTileset.tileheight;
     }
 
     this._tileLayers = {};
@@ -189,9 +203,47 @@ class TiledMapParser extends Sprite {
 
         this._tileLayers[layerJSON.name] = layer;
       } else {
-        console.log("can't do it bruv");
+        const layer = this.parseObjectLayer(layerJSON as TiledMapObjectLayerJSON, tilesets);
+
+        this._objectLayers[layerJSON.name] = layer;
       }
     }
+  }
+
+  private gidToSomethingMoreUseful(gid: number, tilesets: MagicArray<Tileset>): PIXI.Texture {
+    if (gid === 0) return null;
+
+    let spritesheet = tilesets.find(o => o.firstGID <= gid && o.lastGID > gid);
+
+    gid -= spritesheet.firstGID;
+
+    let tileSourceX = (gid % spritesheet.widthInTiles) * spritesheet.tileWidth;
+    let tileSourceY = Math.floor(gid / spritesheet.widthInTiles) * spritesheet.tileHeight;
+
+    let crop = new PIXI.Rectangle(tileSourceX, tileSourceY, spritesheet.tileWidth, spritesheet.tileHeight);
+
+    // TODO - cache these textures.
+    return new PIXI.Texture(spritesheet.texture, crop);
+  }
+
+  private parseObjectLayer(layerJSON: TiledMapObjectLayerJSON, tilesets: MagicArray<Tileset>): Sprite {
+    let layer = new Sprite();
+
+    for (const obj of layerJSON.objects) {
+      const texture = this.gidToSomethingMoreUseful(obj.gid, tilesets);
+      if (!texture) continue;
+
+      const tile: Sprite = new Sprite(texture);
+
+      tile.x = obj.x;
+      tile.y = obj.y;
+
+      tile.tags.push(layerJSON.name);
+
+      layer.addChild(tile);
+    }
+
+    return layer;
   }
 
   private parseTiledMapLayer(layerJSON: TiledMapLayerJSON, tilesets: MagicArray<Tileset>): Sprite {
@@ -203,22 +255,13 @@ class TiledMapParser extends Sprite {
       // Find the spritesheet that contains the tile id.
 
       var value = layerJSON.data[i];
-      if (value == 0) continue;
 
-      let spritesheet = tilesets.find(o => o.firstGID <= value && o.lastGID > value);
+      const texture = this.gidToSomethingMoreUseful(value, tilesets);
+      if (!texture) continue;
 
-      value -= spritesheet.firstGID;
+      const destX = (i % layerJSON.width) * this._tileWidth;
+      const destY = Math.floor(i / layerJSON.width) * this._tileHeight;
 
-      let tileSourceX = (value % spritesheet.widthInTiles) * spritesheet.tileWidth;
-      let tileSourceY = Math.floor(value / spritesheet.widthInTiles) * spritesheet.tileHeight;
-
-      let destX = (i % layerJSON.width) * spritesheet.tileWidth;
-      let destY = Math.floor(i / layerJSON.width) * spritesheet.tileHeight;
-
-      let crop = new PIXI.Rectangle(tileSourceX, tileSourceY, spritesheet.tileWidth, spritesheet.tileHeight);
-
-      // TODO - cache these textures.
-      let texture = new PIXI.Texture(spritesheet.texture, crop);
       let tile: Sprite;
 
       // Do we have special layer processing logic? If so, use it.
