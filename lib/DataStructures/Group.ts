@@ -1,11 +1,9 @@
-﻿class Group<T> {
+﻿class Group<T extends Sprite> {
   private _length: number = 0;
 
-  private _dict: MagicDict<T, boolean>;
+  private _dict: { [key: string]: T } = {};
 
-  constructor(...members: MagicArray<T>[]) {
-    this._dict = new MagicDict<T, boolean>();
-
+  constructor(...members: T[][]) {
     if (members !== null) {
       for (const membersList of members) {
         for (const member of membersList) {
@@ -16,22 +14,30 @@
   }
 
   add(member: T): void {
-    this._dict.put(member, true);
+    this._dict[member.hash] = member;
+    this._length++;
   }
 
   remove(member: T): void {
-    this._dict.remove(member);
+    delete this._dict[member.hash];
+    this._length--;
   }
 
   contains(member: T): boolean {
-    return this._dict.contains(member);
+    return !!this._dict[member.hash];
   }
 
-  items(): MagicArray<T> {
-    return new MagicArray(this._dict.keys());
+  items(): T[] {
+    const vals: T[] = [];
+
+    for (var k in this._dict) {
+      vals.push(this._dict[k]);
+    }
+
+    return vals;
   }
 
   length(): number {
-    return this._dict.length();
+    return this._length;
   }
 }

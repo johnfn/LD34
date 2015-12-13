@@ -49,6 +49,13 @@ class Sprite {
 
   public static componentsForClasses: {[className: string] : Component<Sprite>[]} = {};
 
+  private _hash: string;
+
+  public get hash(): string {
+    if (this._hash) return this._hash;
+    return this._hash = "" + Math.random();
+  }
+
   physics: PhysicsComponent;
 
   /**
