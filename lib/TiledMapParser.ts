@@ -29,7 +29,7 @@ interface TiledMapJSON {
 
   properties: ITiledProperties;
   tilesets: TiledTilesetJSON[];
-  layers: TiledMapLayerJSON[];
+  layers: (TiledMapLayerJSON | TiledObjectJSON)[];
 }
 
 interface TiledMapLayerJSON {
@@ -37,11 +37,37 @@ interface TiledMapLayerJSON {
   height: number;
   name: string;
   opacity: number;
-  type: string;
+  type: string; // "tilelayer"
   visible: boolean;
   width: number;
   x: number;
   y: number
+}
+
+interface TiledObjectJSON {
+  gid: number;
+  height: number;
+  id: number;
+  name: string;
+  properties: { [key: string]: any }
+  rotation: number;
+  type: string;
+  width: number;
+  x: number;
+  y: number;
+}
+
+interface TiledMapObjectLayerJSON {
+  draworder: string;
+  height: number;
+  name: string;
+  objects: TiledObjectJSON[]
+  opacity: number;
+  type: string; // "objectgroup"
+  visible: boolean;
+  width: number;
+  x: number;
+  y: number;
 }
 
 interface Tileset {
@@ -59,7 +85,8 @@ interface LayerProcess {
 
 class TiledMapParser extends Sprite {
   private _rootPath: string;
-  private _layers: { [key: string]: Sprite; } = {};
+  private _tileLayers: { [key: string]: Sprite; } = {};
+  private _objectLayers: { [key: string]: Sprite; } = {};
   private _path: string;
   private _layerProcessing: { [key: string]: LayerProcess } = {};
 
@@ -118,9 +145,9 @@ class TiledMapParser extends Sprite {
     return this;
   }
 
-  public getLayer(name: string): Sprite {
-    if (name in this._layers) {
-      return this._layers[name];
+  public getTileLayer(name: string): Sprite {
+    if (name in this._tileLayers) {
+      return this._tileLayers[name];
     } else {
       console.error(`layer named ${name} not found.`);
     }
@@ -153,54 +180,66 @@ class TiledMapParser extends Sprite {
       });
     }
 
-    this._layers = {};
+    this._tileLayers = {};
+    this._objectLayers = {};
 
     for (let layerJSON of json.layers) {
-      let layer = new Sprite();
+      if (layerJSON.type === "tilelayer") {
+        const layer = this.parseTiledMapLayer(layerJSON as TiledMapLayerJSON, tilesets);
 
-      layer.baseName = layerJSON.name;
+        this._tileLayers[layerJSON.name] = layer;
+      } else {
+        console.log("can't do it bruv");
+      }
+    }
+  }
 
-      for (let i = 0; i < layerJSON.data.length; i++) {
-        // Find the spritesheet that contains the tile id.
+  private parseTiledMapLayer(layerJSON: TiledMapLayerJSON, tilesets: MagicArray<Tileset>): Sprite {
+    let layer = new Sprite();
 
-        var value = layerJSON.data[i];
-        if (value == 0) continue;
+    layer.baseName = layerJSON.name;
 
-        let spritesheet = tilesets.find(o => o.firstGID <= value && o.lastGID > value);
+    for (let i = 0; i < layerJSON.data.length; i++) {
+      // Find the spritesheet that contains the tile id.
 
-        value -= spritesheet.firstGID;
+      var value = layerJSON.data[i];
+      if (value == 0) continue;
 
-        let tileSourceX = (value % spritesheet.widthInTiles) * spritesheet.tileWidth;
-        let tileSourceY = Math.floor(value / spritesheet.widthInTiles) * spritesheet.tileHeight;
+      let spritesheet = tilesets.find(o => o.firstGID <= value && o.lastGID > value);
 
-        let destX = (i % layerJSON.width) * spritesheet.tileWidth;
-        let destY = Math.floor(i / layerJSON.width) * spritesheet.tileHeight;
+      value -= spritesheet.firstGID;
 
-        let crop = new PIXI.Rectangle(tileSourceX, tileSourceY, spritesheet.tileWidth, spritesheet.tileHeight);
+      let tileSourceX = (value % spritesheet.widthInTiles) * spritesheet.tileWidth;
+      let tileSourceY = Math.floor(value / spritesheet.widthInTiles) * spritesheet.tileHeight;
 
-        // TODO - cache these textures.
-        let texture = new PIXI.Texture(spritesheet.texture, crop);
-        let tile: Sprite;
+      let destX = (i % layerJSON.width) * spritesheet.tileWidth;
+      let destY = Math.floor(i / layerJSON.width) * spritesheet.tileHeight;
 
-        // Do we have special layer processing logic?
-        if (this._layerProcessing[layerJSON.name]) {
-          tile = this._layerProcessing[layerJSON.name](texture, destX, destY);
-        } else {
-          tile = new Sprite(texture);
+      let crop = new PIXI.Rectangle(tileSourceX, tileSourceY, spritesheet.tileWidth, spritesheet.tileHeight);
 
-          tile.x = destX;
-          tile.y = destY;
-        }
+      // TODO - cache these textures.
+      let texture = new PIXI.Texture(spritesheet.texture, crop);
+      let tile: Sprite;
 
-        tile.tags.push(layerJSON.name);
+      // Do we have special layer processing logic? If so, use it.
 
-        layer.addChild(tile);
+      if (this._layerProcessing[layerJSON.name]) {
+        tile = this._layerProcessing[layerJSON.name](texture, destX, destY);
+      } else {
+        tile = new Sprite(texture);
+
+        tile.x = destX;
+        tile.y = destY;
       }
 
-      this.addChild(layer);
+      tile.tags.push(layerJSON.name);
 
-      this._layers[layerJSON.name] = layer;
+      layer.addChild(tile);
     }
+
+    this.addChild(layer);
+
+    return layer;
   }
 }
 

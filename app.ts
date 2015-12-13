@@ -9,7 +9,7 @@ class G {
   static explosionMaker: ParticleExplosionMaker;
 
   static get walls(): Group<Sprite> {
-    return new Group(G.map.getLayer("Wall").children);
+    return new Group(G.map.getTileLayer("Wall").children);
   }
 }
 
@@ -82,7 +82,7 @@ class Player extends Sprite implements HasHealth {
 
     this.healthEvents = new Events<HealthEvents>();
 
-    this.physics.collidesWith = new Group(G.map.getLayer("Wall").children);
+    this.physics.collidesWith = new Group(G.map.getTileLayer("Wall").children);
   }
 
   private takeDamage(amount: number): void {
@@ -402,7 +402,7 @@ class Enemy extends Sprite implements HasHealth {
 
 
     Globals.events.on(GlobalEvents.LoadingIsDone, () => {
-      this.physics.collidesWith = new Group(G.map.getLayer("Wall").children);
+      this.physics.collidesWith = new Group(G.map.getTileLayer("Wall").children);
     });
   }
 
