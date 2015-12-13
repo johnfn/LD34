@@ -48,11 +48,17 @@ class MagicDict<Key, Value> {
   put(key: Key, value: Value): Value {
     const hash = this.getHashCode(key);
 
+    /*
+    Uh...this test is wrong.
+
+    Idk how it's wrong, but it's wrong.
+
     if (this._map[hash] !== undefined && this._map[hash] !== value) {
       console.error("Uh oh, hashing issues.");
 
       return;
     }
+    */
 
     if (this._map[hash] === undefined) {
       this._length++;

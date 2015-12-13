@@ -14,10 +14,14 @@
    */
   rotation: number;
 
+  scale: number;
+
   /**
    * Do the particles obey the laws of gravity?
+   * 
+   * Defaults to false.
    */
-  gravity: boolean;
+  gravity?: boolean;
 
   /**
    * Number of ticks this particle will stay alive.
@@ -47,10 +51,13 @@ class Particle extends PIXI.Sprite {
     this._behavior    = behavior;
     this._ticksLeft   = behavior.lifetime;
     this._effectiveDy = behavior.dy;
+
+    // scale does not change, so set it once. also bc i dont like making tons of points
+    this.scale = new Point(this._behavior.scale, this._behavior.scale);
   }
 
   /**
-   * Update a particle based on its ParticleBehavior. Like a weaksauce Sprite#update.
+   * Update a particle based on its ParticleBehavior. 
    */
   update(): void {
     this.x += this._behavior.dx;
@@ -279,8 +286,47 @@ class ParticleExplosionMaker extends Particles {
     return {
       lifetime: Util.RandomRange(5, 20),
       gravity: true,
+      scale: 1,
       dx: pt.x * 4,
       dy: pt.y * 4,
+      rotation: Util.RandomRange(-.5, .5)
+    };
+  }
+}
+
+class ParticleEmitter extends Particles {
+  constructor(path: string, particleWidth: number, particleHeight: number, textureWidth: number, textureHeight: number) {
+    super(path, particleWidth, particleHeight, textureWidth, textureHeight);
+  }
+
+  emitAt(x: number, y: number): void {
+    const p = this.addParticles(1);
+
+    for (let i = 0; i < p.length; i++) {
+      p[i].x = x;
+      p[i].y = y;
+    }
+  }
+
+  /**
+   * Emits particles from a random location inside the rectangle.
+   * @param rect
+   */
+  emitIn(rect: PIXI.Rectangle): void {
+    const p = this.addParticles(1);
+
+    for (let i = 0; i < p.length; i++) {
+      p[i].x = Util.RandomRange(rect.x, rect.x + rect.width);
+      p[i].y = Util.RandomRange(rect.y, rect.y + rect.height);
+    }
+  }
+
+  particleBehavior(): ParticleBehavior {
+    return {
+      lifetime: Util.RandomRange(60, 180),
+      scale: Util.RandomRange(.5, 2),
+      dx: Util.RandomRange(-.4, .4),
+      dy: Util.RandomRange(-.4, -.7),
       rotation: Util.RandomRange(-.5, .5)
     };
   }

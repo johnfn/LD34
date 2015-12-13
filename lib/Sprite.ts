@@ -45,7 +45,7 @@ class Sprite {
 
   public tags: string[] = [];
 
-  protected _z: number;
+  protected _z: number = 0;
 
   public components: Component<Sprite>[];
 
@@ -145,6 +145,9 @@ class Sprite {
 
   get rotation(): number { return this.displayObject.rotation; }
   set rotation(val: number) { this.displayObject.rotation = val; }
+
+  get scale(): PIXI.Point { return this.displayObject.scale; }
+  set scale(val: PIXI.Point) { this.displayObject.scale = val; }
 
   get alpha(): number { return this.displayObject.alpha; }
   set alpha(val: number) { this.displayObject.alpha = val; }

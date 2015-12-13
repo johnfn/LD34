@@ -7,6 +7,7 @@ class G {
   static map: TiledMapParser;
   static hud: HUD;
   static explosionMaker: ParticleExplosionMaker;
+  static staticEmitter: ParticleEmitter;
 
   static get walls(): Group<Sprite> {
     return new Group(G.map.getTileLayer("Wall").children);
@@ -26,6 +27,11 @@ enum HealthEvents {
   ChangeHealth
 }
 
+enum InventoryContents {
+  Token,
+  Fuel
+}
+
 // @component(new FollowWithCamera())
 @component(new PhysicsComponent({
   solid: true,
@@ -38,6 +44,8 @@ class Player extends Sprite implements HasHealth {
 
   private _maxHealth: number = 10;
   public get maxHealth(): number { return this._maxHealth;  }
+
+  public inventory: MagicDict<InventoryContents, number>;
 
   private vy: number = 0;
 
@@ -80,9 +88,22 @@ class Player extends Sprite implements HasHealth {
     this.z = 10;
     this.y = 300;
 
+    this.initializeInventory();
+
     this.healthEvents = new Events<HealthEvents>();
 
     this.physics.collidesWith = new Group(G.map.getTileLayer("Wall").children);
+  }
+
+  private initializeInventory(): void {
+    this.inventory = new MagicDict<InventoryContents, number>();
+
+    this.inventory.put(InventoryContents.Fuel, 0);
+    this.inventory.put(InventoryContents.Token, 0);
+  }
+
+  public addItemToInventory(type: InventoryContents): void {
+    this.inventory.put(type, this.inventory.get(type) + 1);
   }
 
   private takeDamage(amount: number): void {
@@ -161,6 +182,17 @@ class Player extends Sprite implements HasHealth {
     }
   }
 
+  checkHitItems(): void {
+    const items = this.physics.touches(Sprites.by(x => x instanceof Pickup))
+
+    for (const item of items) {
+      const pickup: Pickup = item as Pickup
+
+      // Do the needful!
+      pickup.pickup();
+    }
+  }
+
   private testing: boolean = true;
 
   update(): void {
@@ -171,6 +203,8 @@ class Player extends Sprite implements HasHealth {
     } else {
       this.processFlicker();
     }
+
+    this.checkHitItems();
 
     /*
     if (this.testing) {
@@ -236,6 +270,46 @@ class Player extends Sprite implements HasHealth {
   }
 
   postUpdate(): void {
+  }
+}
+
+class Pickup extends Sprite {
+  pickup(): void {
+    G.explosionMaker.explodeAt(this.globalX, this.globalY);
+
+    this.destroy();
+  }
+
+  update(): void {
+    super.update();
+
+    if (Math.random() > .9) {
+      G.staticEmitter.emitIn(this.globalBounds);
+    }
+  }
+}
+
+class Token extends Pickup {
+  constructor() {
+    super("assets/token.png");
+  }
+
+  public pickup(): void {
+    super.pickup();
+
+    G.player.addItemToInventory(InventoryContents.Token);
+  }
+}
+
+class Fuel extends Pickup {
+  constructor() {
+    super("assets/fuel.png");
+  }
+
+  public pickup(): void {
+    super.pickup();
+
+    G.player.addItemToInventory(InventoryContents.Fuel);
   }
 }
 
@@ -355,16 +429,51 @@ class HealthBar extends Sprite {
   }
 }
 
+class IconAndText extends Sprite {
+  _icon: Sprite;
+  _text: TextField;
+
+  constructor(iconPath: string) {
+    super();
+
+    this._icon = new Sprite(iconPath).addTo(this);
+
+    this._icon.x = 0;
+    this._icon.y = 0;
+
+    this._text = new TextField("??").addTo(this);
+
+    this._text.x = 40;
+    this._text.y = 0;
+
+    this.z = 10;
+  }
+
+  setText(text: string): void {
+    this._text.text = text;
+  }
+}
+
 @component(new FixedToCamera(0, 0))
 class HUD extends Sprite {
   private _healthBar: HealthBar;
+
+  private _fuel:   IconAndText;
+  private _tokens: IconAndText;
 
   constructor() {
     super();
 
     this.z = 20;
-    this._healthBar = new HealthBar(G.player, 100, 15, true);
-    this.addChild(this._healthBar);
+
+    this._healthBar = new HealthBar(G.player, 100, 15, true).addTo(this);
+    this._fuel      = new IconAndText("assets/fuel.png") .moveTo(120, 10).addTo(this);
+    this._tokens    = new IconAndText("assets/token.png").moveTo(210, 10).addTo(this);
+  }
+
+  update(): void {
+    this._fuel.setText(String(G.player.inventory.get(InventoryContents.Fuel)));
+    this._tokens.setText(String(G.player.inventory.get(InventoryContents.Token)));
   }
 }
 
@@ -470,6 +579,7 @@ class MyGame extends Game {
 
     G.map = new TiledMapParser("assets/map.json")
       .addLayerParser("Enemies", (text, x, y) => new Enemy(text, x, y))
+      .addObjectParser(22, (texture, json) => new Enemy(texture, json.x, json.y))
       .parse();
   }
 
@@ -489,8 +599,12 @@ class MyGame extends Game {
     Globals.stage.addChild(G.map);
 
     G.explosionMaker = new ParticleExplosionMaker("assets/particles.png", 16, 16, 64, 16);
+    G.staticEmitter = new ParticleEmitter("assets/particles.png", 16, 16, 64, 16);
 
     Globals.stage.addChild(G.explosionMaker);
+    Globals.stage.addChild(G.staticEmitter);
+
+    Globals.stage.addChild(new Token().moveTo(200, 200));
 
     new FPSCounter();
 
