@@ -253,6 +253,8 @@ class TiledMapParser extends Sprite {
 
       if (this._objectProcessing[obj.gid]) {
         tile = this._objectProcessing[obj.gid](texture, obj);
+
+        if (tile === null) continue;
       } else {
         tile = new Sprite(texture);
       }
@@ -292,6 +294,8 @@ class TiledMapParser extends Sprite {
 
       if (this._layerProcessing[layerJSON.name]) {
         tile = this._layerProcessing[layerJSON.name](texture, destX, destY);
+
+        if (tile === null) continue;
       } else {
         tile = new Sprite(texture);
 

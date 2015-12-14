@@ -16,6 +16,8 @@ class Game {
   private debug: Debug;
   private _renderer: PIXI.WebGLRenderer | PIXI.CanvasRenderer;
 
+  private static _ticks: number = 0;
+
   public stage: Stage;
 
   /**
@@ -51,6 +53,10 @@ class Game {
     Globals.events.on(GlobalEvents.LoadingIsDone, () => this.loadingComplete());
   }
 
+  static EveryNthFrame(n: number): boolean {
+    return Game._ticks % n === 0;
+  }
+
   loadingComplete(): void {
     // Kick off the main game loop.
     requestAnimationFrame(() => this.update());
@@ -61,6 +67,8 @@ class Game {
   */
   update(): void {
     let children = Sprites.all().items();
+
+    Game._ticks++;
 
     Globals.keyboard.update();
 

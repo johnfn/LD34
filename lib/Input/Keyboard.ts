@@ -83,8 +83,11 @@ class Keyboard {
       const key = this.eventToKey(queuedEvent.event);
 
       if (queuedEvent.isDown) {
+        if (!this.down[key]) {
+          this.justDown[key] = true;
+        }
+
         this.down[key]     = true;
-        this.justDown[key] = true;
       } else {
         this.down[key]     = false;
       }

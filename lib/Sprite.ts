@@ -173,6 +173,11 @@ class Sprite {
   }
 
   private _globalXYCache: Point = undefined;
+
+  /**
+   * Get the screen-space x and y coordinates of this object (not relative to anything).
+   * @returns {} 
+   */
   get globalXY(): Point {
     if (this._globalXYCache) return this._globalXYCache;
 
